@@ -2653,3 +2653,105 @@ public:
 };
 ```
 
+
+
+## 2021-2-20
+
+### [697. 数组的度](https://leetcode-cn.com/problems/degree-of-an-array/)
+
+给定一个非空且只包含非负数的整数数组 nums，数组的度的定义是指数组里任一元素出现频数的最大值。
+
+你的任务是在 nums 中找到与 nums 拥有相同大小的度的最短连续子数组，返回其长度。
+
+
+
+#### 思路
+
+通过map来记录每个数出现的次数、起始位置和最后出现位置，这样我们就可以只需要遍历一遍原数据然后再遍历一遍map即可。
+
+
+
+#### 题解
+
+```c
+class Solution {
+public:
+    int findShortestSubArray(vector<int>& nums) {
+        map <int,vector<int>> mp;
+        map <int,vector<int>>::iterator it;
+        int size=nums.size();
+        for(int i=0;i<size;++i){
+            it=mp.find(nums[i]);
+            if(it==mp.end()){
+                //新出现的数
+                vector<int> q(3);
+                q[0]=1;
+                q[1]=i;
+                q[2]=i;
+                mp.insert(pair<int,vector<int>>(nums[i],q));
+            }
+            else{
+                //更新出现情况
+                it->second[0]++;
+                it->second[2]=i;
+            }
+        }
+        int max=0;
+        int length=0;
+        for(it=mp.begin();it!=mp.end();it++){
+            if(it->second[0]>max){
+                //出现了新的最大
+                max=it->second[0];
+                length=it->second[2]-it->second[1]+1;
+            }
+            else if(it->second[0]==max){
+                //出现次数一样 比较子数组长短
+                if(it->second[2]-it->second[1]+1<length){
+                    length=it->second[2]-it->second[1]+1;
+                }
+            }
+        }
+        return length;
+    }
+};
+```
+
+
+
+### [160. 相交链表](https://leetcode-cn.com/problems/intersection-of-two-linked-lists/)
+
+编写一个程序，找到两个单链表相交的起始节点。
+
+
+
+#### 思路
+
+如果暴力寻找的话，会浪费大量的时间。考虑到如果相交的时候，这两个链表有一段是一样长的。假定链表分别是A和B，那么我们把链表组合成`A+B `和`B+A`的形式，同步去遍历他们，当第二次遍历到相同的部分的时候，他们一定是一样的。也即如果A可以看成`a+c`，B可以看成`b+c`，则`A+B `和`B+A`分别为`a+c+b+c`和`b+c+a+c`，当我们遍历到第二个`c`的时候，他们一定是同时到达的，这样就能找到相交节点了。
+
+
+
+#### 题解
+
+```c
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+       ListNode *q=headA,*p=headB;
+       if(headA==nullptr||headB==nullptr) return 0;
+       while(q!=p){
+           p=(p==nullptr)?headA:p->next;
+           q=(q==nullptr)?headB:q->next;
+       }
+       return q;
+    }
+};
+```
+
