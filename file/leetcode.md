@@ -2755,3 +2755,321 @@ public:
 };
 ```
 
+
+
+## 2021-2-21
+
+### [1438. 绝对差不超过限制的最长连续子数组](https://leetcode-cn.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)
+
+给你一个整数数组 nums ，和一个表示限制的整数 limit，请你返回最长连续子数组的长度，该子数组中的任意两个元素之间的绝对差必须小于或者等于 limit 。
+
+如果不存在满足条件的子数组，则返回 0 。
+
+
+
+#### 思路
+
+首先这是一个滑动窗口的模板，接着我们要考虑如何保证`任意两个元素之间的绝对差小于等于limit`，这句话换个角度来看就是说保证这个子数组中的最大最小值的差值小于等于limit，所以我们考虑用一种合适的数据结构来保存最大最小即可。
+
+
+
+#### 题解
+
+```c
+class Solution {
+public:
+    int longestSubarray(vector<int>& nums, int limit) {
+        multiset<int> st;
+        int left = 0, right = 0;
+        int size=nums.size();
+        int answer = 0;
+        while (right < size) {
+            st.insert(nums[right]);
+            while (*st.rbegin() - *st.begin() > limit) {
+                st.erase(st.find(nums[left]));
+                left ++;
+            }
+            answer = max(answer, right - left + 1);
+            right ++;
+        }
+        return answer;
+    }
+};
+```
+
+
+
+
+
+### [461. 汉明距离](https://leetcode-cn.com/problems/hamming-distance/)
+
+两个整数之间的汉明距离指的是这两个数字对应二进制位不同的位置的数目。
+
+给出两个整数 x 和 y，计算它们之间的汉明距离。
+
+注意：
+0 ≤ x, y < 231.
+
+
+
+#### 思路
+
+首先，对两个数据进行异或操作，之后统计异或的结果有多少个1即可。
+
+在统计1的个数的时候，我们可以选择朴素的二进制计算法，也可以选择**布赖恩·克尼根算法**
+
+
+
+#### 题解
+
+```c
+class Solution {
+public:
+    int hammingDistance(int x, int y) {
+        //先异或 然后看异或以后的结果的1的数目
+        int c=x^y;
+        int result=0;
+        while(c!=0){
+            result+=c%2;
+            c=c/2;
+        }
+        return result;
+    }
+};
+```
+
+
+
+#### 布赖恩·克尼根算法
+
+很朴素的一个思路，我们假定有一个数是`100100`，那么人只会去找1的个数，所以我们可以尝试让这个数减一，在减一以后，与原来的数进行与运算，这样的话，就会将最右边的1变成0，重复这样的操作，我们就可以找到1的个数。
+
+
+
+
+
+### [617. 合并二叉树](https://leetcode-cn.com/problems/merge-two-binary-trees/)
+
+给定两个二叉树，想象当你将它们中的一个覆盖到另一个上时，两个二叉树的一些节点便会重叠。
+
+你需要将他们合并为一个新的二叉树。合并的规则是如果两个节点重叠，那么将他们的值相加作为节点合并后的新值，否则不为 NULL 的节点将直接作为新二叉树的节点。
+
+
+
+#### 思路
+
+只要能够对树进行遍历即可，遍历的时候保证两棵树一起遍历，即使是`null`也要遍历到然后合并就行。采用`DFS`比较简单。
+
+
+
+#### 题解
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
+        //考虑有一部分残缺的情况 如果都残缺的话返回null也没问题
+        if(root1==nullptr){
+            return root2;
+        }
+        if(root2==nullptr){
+            return root1;
+        }
+        //都不残缺的情况 就地更改root1即可 当然也可新建
+        root1->val=root1->val+root2->val;
+        root1->left=mergeTrees(root1->left,root2->left);
+        root1->right=mergeTrees(root1->right,root2->right);
+        return root1;
+    }
+};
+```
+
+
+
+
+
+### [226. 翻转二叉树](https://leetcode-cn.com/problems/invert-binary-tree/)
+
+翻转一棵二叉树。
+
+
+
+#### 思路
+
+首先考虑一个问题，翻转子树优先和翻转当前节点是否冲突。画图后我们可以发现，二叉树翻转某个节点的两个子树和他自己并不影响，也即，每次翻转只会改变当前层级的两个节点的情况，所以我们直接翻转就可以。
+
+
+
+#### 题解
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if(root==nullptr) return root;
+        TreeNode *temp;
+        temp=root->left;
+        root->left=root->right;
+        root->right=temp;
+        invertTree(root->left);
+        invertTree(root->right);
+        return root;
+    }
+};
+```
+
+
+
+### [206. 反转链表](https://leetcode-cn.com/problems/reverse-linked-list/)
+
+反转一个单链表。
+
+
+
+#### 思路
+
+假如链表为`a->b->c->d->null`，当我们遍历到`b`的时候，我们将`b->next`设置成`b`前面的，然后继续遍历，把c放到b前面，如此类推即可，值得注意的是，要记得把`a->next`变成`null`防止出现环。
+
+
+
+#### 题解
+
+```c
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        if(!head) return nullptr;
+        ListNode * p;
+        ListNode * q=head;
+        ListNode * t=head;
+        while(head!=nullptr){
+            //记录当前节点
+            p=head;
+            //head跳到下一个节点
+            head=head->next;
+            //把反转链表接到当前节点上
+            p->next=q;
+            //反转链往前移一个
+            q=p;
+        }
+        t->next=nullptr;
+        return p;
+    }
+};
+```
+
+
+
+
+
+### [169. 多数元素](https://leetcode-cn.com/problems/majority-element/)
+
+给定一个大小为 n 的数组，找到其中的多数元素。多数元素是指在数组中出现次数 大于 ⌊ n/2 ⌋ 的元素。
+
+你可以假设数组是非空的，并且给定的数组总是存在多数元素。
+
+
+
+#### 思路
+
+法一：分治法，可以证明如果一个数是众数，那么他在两个一半的数组中也是一个众数，我们可以将两个子数组的众数找出来在选择正确的那个
+
+法二：摩尔投票法，一个经典的方法。我们需要维护一个`candidate`变量和一个`count`变量，前者记录众数的候选者，后者记录这个候选者的数目。当`count`等于0时，我们将`candidate`设置成当前的数组值。当遍历时，如果`candidate`等于当前值，则`count++`，反之则减一。最后遍历完剩下的就是众数。
+
+很直观的一个解释就是，众数会超过整个数组的一半，所以当`candidate`是众数时，因为众数超过了一半，所以其不会减到0，即使减到了0，也会在后面遇到更多的该数使得`candidate`又变成这个数，而如果其不是众数，因为其会大量出现，所以它会让当前的`candidate`下台。
+
+
+
+#### 题解（摩尔投票法）
+
+```c
+class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        int count=0;
+        int candidate;
+        int size=nums.size();
+        for(int i=0;i<size;++i){
+            if(count==0) 
+                candidate = nums[i];
+            if(nums[i]==candidate)
+                    count++;
+                else    
+                    count--;
+            }
+        return candidate;
+        }
+};
+```
+
+
+
+### [283. 移动零](https://leetcode-cn.com/problems/move-zeroes/)
+
+给定一个数组 `nums`，编写一个函数将所有 `0` 移动到数组的末尾，同时保持非零元素的相对顺序。
+
+
+
+#### 思路
+
+0移到末尾也就是把非0数放到前面，也即每次我们将非0数往前放，然后整个数组放完后对后面进行补0即可。所以我们需要双指针，一个遍历数组一个用来记录往左移动后非0数的最后一个的位置。
+
+
+
+#### 题解
+
+```c
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        //换个思路看题就是
+        //将所有非0数移到前面即可然后将后面全部补0
+        int size=nums.size();
+        int q=0;//记录当前存储值的位置
+        for(int i=0;i<size;++i){
+            if(nums[i]!=0){
+                nums[q]=nums[i];
+                q++;
+            }
+        }
+        for(;q<size;++q){
+            nums[q]=0;
+        }
+    }
+};
+```
+
+
+
