@@ -3073,3 +3073,147 @@ public:
 
 
 
+## 2021-2-23
+
+### [1052. 爱生气的书店老板](https://leetcode-cn.com/problems/grumpy-bookstore-owner/)
+
+今天，书店老板有一家店打算试营业 customers.length 分钟。每分钟都有一些顾客（customers[i]）会进入书店，所有这些顾客都会在那一分钟结束后离开。
+
+在某些时候，书店老板会生气。 如果书店老板在第 i 分钟生气，那么 grumpy[i] = 1，否则 grumpy[i] = 0。 当书店老板生气时，那一分钟的顾客就会不满意，不生气则他们是满意的。
+
+书店老板知道一个秘密技巧，能抑制自己的情绪，可以让自己连续 X 分钟不生气，但却只能使用一次。
+
+请你返回这一天营业下来，最多有多少客户能够感到满意的数量。
+
+
+
+#### 思路
+
+显然，这是滑动窗口的题。题目中的窗口大小为`X`，是固定不动的，我们要计算这个窗口中如果不生气的顾客满意的增量，而如果原来就不生气的顾客我们直接加上去即可。所以我们需要寻找一个顾客满意增量最大的定长窗口。
+
+
+
+#### 题解
+
+```c
+class Solution {
+public:
+    int maxSatisfied(vector<int>& customers, vector<int>& grumpy, int X) {
+        int size=customers.size();
+        int left=0,right=0;
+        int sum=0;
+        int s=0;
+        for(;right<X;++right){
+            //总和
+            if(grumpy[right]==0)
+                sum+=customers[right];//总和
+            //增量
+            s+=grumpy[right]*customers[right];
+        }
+        int maxD=s;
+        for(;right<size;++right){
+            //计算总和
+            if(grumpy[right]==0)
+                sum+=customers[right];//总和
+            //计算不生气后的增量
+            s=s-grumpy[left]*customers[left]+grumpy[right]*customers[right];
+            if(s>maxD) maxD=s;
+            left++;
+          
+        }
+        return maxD+sum;
+    }
+};
+```
+
+
+
+### [234. 回文链表](https://leetcode-cn.com/problems/palindrome-linked-list/)
+
+请判断一个链表是否为回文链表。
+
+
+
+#### 思路
+
+- 数组保存指针，然后遍历数组即可
+- 快慢指针，可以找到这个链表的中间，然后翻转后半链表与前半部分比较。
+
+
+
+#### 题解
+
+```c
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    bool isPalindrome(ListNode* head) {
+        //数组
+        vector<ListNode*> num;
+        while(head!=nullptr){
+            num.push_back(head);
+            head=head->next;
+        }
+        int size=num.size();
+        for(int i=0;i<size/2;++i){
+            if(num[i]->val!=num[size-i-1]->val)
+                return false;
+        }
+        return true;
+    }
+};
+```
+
+
+
+### [78. 子集](https://leetcode-cn.com/problems/subsets/)
+
+给你一个整数数组 `nums` ，数组中的元素 **互不相同** 。返回该数组所有可能的子集（幂集）。
+
+解集 **不能** 包含重复的子集。你可以按 **任意顺序** 返回解集。
+
+
+
+#### 思路
+
+这个数在数组里面与不在里面可以用01来表示，那么整个数组就是一个01串，也就是一个二进制数。这样我们进行遍历二进制数，如果某位是1，那么就把对应的数放进去即可。
+
+
+
+#### 题解
+
+```c
+class Solution {
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        int size=nums.size();
+        vector<int> temp;
+        vector<vector<int>> result;
+        int limit=1<<size;
+        for(int i=0;i<limit;++i){
+            temp.clear();
+            for(int t=0;t<size;++t){
+                if(i&(1<<t)){
+                    //是1
+                    temp.push_back(nums[t]);
+                }
+            }
+            result.push_back(temp);
+        }
+        return result;
+
+    }
+};
+```
+
+
+
