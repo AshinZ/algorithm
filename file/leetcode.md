@@ -3217,3 +3217,77 @@ public:
 
 
 
+### [766. 托普利茨矩阵](https://leetcode-cn.com/problems/toeplitz-matrix/)
+
+给你一个 m x n 的矩阵 matrix 。如果这个矩阵是托普利茨矩阵，返回 true ；否则，返回 false 。
+
+如果矩阵上每一条由左上到右下的对角线上的元素都相同，那么这个矩阵是 托普利茨矩阵 。
+
+
+
+#### 思路
+
+模拟，遍历数组，每次将他和左上角进行比较即可。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public boolean isToeplitzMatrix(int[][] matrix) {
+        int x = matrix.length;
+        int y = matrix[0].length;
+        for(int i=1;i<x;++i){
+            for(int j=1;j<y;++j){
+                if(matrix[i][j]!=matrix[i-1][j-1])
+                    return false;
+            }
+        }
+        return true;
+    }
+}
+```
+
+
+
+### [832. 翻转图像](https://leetcode-cn.com/problems/flipping-an-image/)
+
+给定一个二进制矩阵 A，我们想先水平翻转图像，然后反转图像并返回结果。
+
+水平翻转图片就是将图片的每一行都进行翻转，即逆序。例如，水平翻转 [1, 1, 0] 的结果是 [0, 1, 1]。
+
+反转图片的意思是图片中的 0 全部被 1 替换， 1 全部被 0 替换。例如，反转 [0, 1, 1] 的结果是 [1, 0, 0]。
+
+
+
+#### 思路
+
+按照题目意思来做即可，注意可以把01置换和交换步骤放到一次循环里来做。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public int[][] flipAndInvertImage(int[][] A) {
+        int x=A.length;
+        int y=A[0].length;
+        for(int i=0;i<x;i++){
+            for(int j=0;j<(y+1)/2;++j){
+                //01 change
+                A[i][j]^=1;
+                if(y-1!=2*j)
+                    A[i][y-1-j]^=1;
+                //swap
+                int temp=A[i][y-1-j];
+                A[i][y-1-j]=A[i][j];
+                A[i][j]=temp;
+            }
+        }
+        return A;
+    }
+}
+```
+
