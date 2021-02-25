@@ -3291,3 +3291,98 @@ class Solution {
 }
 ```
 
+
+
+## 2021-2-25
+
+### [867. 转置矩阵](https://leetcode-cn.com/problems/transpose-matrix/)
+
+给你一个二维整数数组 `matrix`， 返回 `matrix` 的 **转置矩阵** 。
+
+矩阵的 **转置** 是指将矩阵的主对角线翻转，交换矩阵的行索引与列索引。
+
+
+
+#### 思路
+
+模拟即可。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public int[][] transpose(int[][] matrix) {
+        int n = matrix.length;
+        int m = matrix[0].length;
+        int[][] num = new int [m][n];
+        for(int i=0;i<n;++i){
+            for(int j=0;j<m;++j){
+                num[j][i]=matrix[i][j];
+            }
+        } 
+        return num;
+    }
+}
+```
+
+
+
+### [338. 比特位计数](https://leetcode-cn.com/problems/counting-bits/)
+
+给定一个非负整数 **num**。对于 **0 ≤ i ≤ num** 范围中的每个数字 **i** ，计算其二进制数中的 1 的数目并将它们作为数组返回。
+
+
+
+#### 思路
+
+考虑到前面的布赖恩·克尼根算法，我们可以将其作为子函数，然后每次去调用他即可。
+
+但是这样我们每次都在重新算一遍，而作为二进制来说，相邻的数应该是有某种联系的，所以可以考虑一些dp解法。（见题解2）
+
+
+
+#### 题解1
+
+```java
+class Solution {
+    public int[] countBits(int num) {
+        int[] result = new int[num+1];
+        for(int i=0;i<=num;++i){
+            result[i]=get1(i);
+        }
+        return result;
+    }
+
+    int get1(int x){
+        int time=0;
+        while(x!=0){
+            x=x&(x-1);
+            time++;
+        }
+        return time;
+    }
+}
+```
+
+
+
+#### 题解2 基于1的dp
+
+```java
+class Solution {
+    public int[] countBits(int num) {
+        //我们知道x&(x-1)比x少了一个1 所以基于这个特性我们就可以知道递推式
+        //f(x)=f(x&(x-1))+1 ,x>0
+        int[] result = new int[num+1];
+        result[0]=0;//init
+        for(int i=1;i<=num;++i){
+            result[i]=result[i&(i-1)]+1;
+        }
+        return result;
+    }
+
+}
+```
+
