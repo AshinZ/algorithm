@@ -3386,3 +3386,145 @@ class Solution {
 }
 ```
 
+
+
+## 2021-2-28
+
+### [896. 单调数列](https://leetcode-cn.com/problems/monotonic-array/)
+
+如果数组是单调递增或单调递减的，那么它是单调的。
+
+如果对于所有 i <= j，A[i] <= A[j]，那么数组 A 是单调递增的。 如果对于所有 i <= j，A[i]> = A[j]，那么数组 A 是单调递减的。
+
+当给定的数组 A 是单调数组时返回 true，否则返回 false。
+
+
+
+#### 思路
+
+用一个`flag`记录前面的差值，如果两个差值异号则不单调，同号则更新flag，如果是0则保持前面的`flag`。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public boolean isMonotonic(int[] A) {
+        int size = A.length;
+        if(size<=2) return true;
+        int flag=0;
+        for(int i=1;i<size;++i){
+            int d=A[i]-A[i-1];
+            if(flag*d<0) return false;
+            flag = (d==0)?flag:d;
+        }
+        return true;
+    }
+}
+```
+
+
+
+## 2021-3-1
+
+### [303. 区域和检索 - 数组不可变](https://leetcode-cn.com/problems/range-sum-query-immutable/)
+
+给定一个整数数组  nums，求出数组从索引 i 到 j（i ≤ j）范围内元素的总和，包含 i、j 两点。
+
+实现 NumArray 类：
+
+NumArray(int[] nums) 使用数组 nums 初始化对象
+int sumRange(int i, int j) 返回数组 nums 从索引 i 到 j（i ≤ j）范围内元素的总和，包含 i、j 两点（也就是 sum(nums[i], nums[i + 1], ... , nums[j])）
+
+
+
+#### 思路
+
+前缀和。我们每次不记录数据是多少，而是记录前n个数的总和是多少，这样每个数据可以通过n与n-1的差值计算，而计算题目中的和的时候，只需要将两个前缀和相减就能得到某一串数据的和。
+
+
+
+#### 题解
+
+```java
+class NumArray {
+    int [] num;
+
+    public NumArray(int[] nums) {
+        int size = nums.length;
+        num = new int[size+1];
+        num[0]=0;
+        for(int i=0;i<size;++i){
+            num[i+1]=num[i]+nums[i];
+        }
+    }
+    
+    public int sumRange(int i, int j) {
+        return num[j+1]-num[i];
+    }
+}
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * int param_1 = obj.sumRange(i,j);
+ */
+```
+
+
+
+## 2021-3-2
+
+### [304. 二维区域和检索 - 矩阵不可变](https://leetcode-cn.com/problems/range-sum-query-2d-immutable/)
+
+给定一个二维矩阵，计算其子矩形范围内元素的总和，该子矩阵的左上角为 (row1, col1) ，右下角为 (row2, col2) 。
+
+
+
+#### 思路
+
+考虑前缀和。在此题中，要求的是一个矩阵，所以我们会考虑在这个矩阵中，如何使用前缀和，即每个空格的数字代表着什么。考虑到容斥原理，我们可以将`num[i][j]`表示为i\*j大小的一个矩阵。那么我们如何表示要求的矩阵的面积呢？根据容斥原理，我们可以得到
+
+```java
+num[i][j]=num[i-1][j]+num[i][j-1]-num[i-1][j-1]+matrcx[i][j]
+num[i-a][j-b]=num[i][j]-num[i-a-1][j]-num[i][j-b-1]+num[i-a-1][numj-b-1]
+```
+
+这样我们就可以考虑用代码实现了。在实现的过程中，我们发现，如果保持原来的数组大小的话，对于`i==0`和`j==0`这样的边界条件我们很难处理，所以我们可以考虑将数组设置成\[row+1][rol+1]的大小，这样就不用考虑其边界，只要做好对应运算即可。
+
+
+
+#### 题解
+
+```java
+class NumMatrix {
+    int [][] num;
+
+    public NumMatrix(int[][] matrix) {
+        int x = matrix.length;
+        if(x==0) return  
+        int y = matrix[0].length;
+        num = new int [x+1][y+1];
+        for(int i=1;i<=x;++i){
+            for(int j=1;j<=y;++j){
+                //容斥原理
+                num[i][j] = num[i][j-1]+num[i-1][j]-num[i-1][j-1]+matrix[i-1][j-1];
+                }
+        }
+    }
+    
+    public int sumRegion(int row1, int col1, int row2, int col2) {
+        return num[row2+1][col2+1]-num[row2+1][col1]-num[row1][col2+1]+num[row1][col1];
+    }
+}
+
+/**
+ * Your NumMatrix object will be instantiated and called as such:
+ * NumMatrix obj = new NumMatrix(matrix);
+ * int param_1 = obj.sumRegion(row1,col1,row2,col2);
+ */
+```
+
+
+
