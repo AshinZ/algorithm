@@ -3528,3 +3528,83 @@ class NumMatrix {
 
 
 
+## 2021-3-6
+
+### [496. 下一个更大元素 I](https://leetcode-cn.com/problems/next-greater-element-i/)
+
+给你两个 没有重复元素 的数组 nums1 和 nums2 ，其中nums1 是 nums2 的子集。
+
+请你找出 nums1 中每个元素在 nums2 中的下一个比其大的值。
+
+nums1 中数字 x 的下一个更大元素是指 x 在 nums2 中对应位置的右边的第一个比 x 大的元素。如果不存在，对应位置输出 -1 。
+
+
+
+#### 思路
+
+单调栈。我们维护一个单调栈来找比这个数大的下一个数，可以直接把整个数组的所有的都算出来，然后按照nums1填到答案数组里去即可。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public int[] nextGreaterElement(int[] nums1, int[] nums2) {
+        Stack<Integer> stack = new Stack <>();
+        HashMap < Integer, Integer > map = new HashMap < > ();
+        int[] ans = new int [nums1.length];
+         for (int i = 0; i < nums2.length; i++) {
+            while (!stack.empty() && nums2[i] > stack.peek())
+                map.put(stack.pop(), nums2[i]);
+            stack.push(nums2[i]);
+        }
+        while (!stack.empty())
+            map.put(stack.pop(), -1);
+        for (int i = 0; i < nums1.length; i++) {
+            ans[i] = map.get(nums1[i]);
+        }
+        return ans;
+
+    }
+}
+```
+
+
+
+### [503. 下一个更大元素 II](https://leetcode-cn.com/problems/next-greater-element-ii/)
+
+给定一个循环数组（最后一个元素的下一个元素是数组的第一个元素），输出每个元素的下一个更大元素。数字 x 的下一个更大的元素是按数组遍历顺序，这个数字之后的第一个比它更大的数，这意味着你应该循环地搜索它的下一个更大的数。如果不存在，则输出 -1。
+
+
+
+#### 思路
+
+单调栈。该题是一个循环数组，所以我们可以考虑把这个数组变成两倍长，这样的话，在数组末的元素也可以和数组头的元素进行比较。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public int[] nextGreaterElements(int[] nums) {
+        Stack<Integer> stack = new Stack <>();
+        int[] ans = new int [nums.length];
+        for (int i = 0; i < nums.length; i++) {
+                while (!stack.empty() && nums[i] > nums[stack.peek()])
+                    ans[stack.pop()] = nums[i];
+                stack.push(i);
+            }
+        //处理尾部元素和头部元素的比较
+        for (int i = 0; i < nums.length; i++) {
+                while (!stack.empty() && nums[i] > nums[stack.peek()])
+                    ans[stack.pop()] = nums[i];
+            }
+        while (!stack.empty())
+            ans[stack.pop()] = -1;
+        return ans;
+    }
+}
+```
+
