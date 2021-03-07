@@ -3608,3 +3608,136 @@ class Solution {
 }
 ```
 
+
+
+## 2021-3-7
+
+### [647. 回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)
+
+给定一个字符串，你的任务是计算这个字符串中有多少个回文子串。
+
+具有不同开始位置或结束位置的子串，即使是由相同的字符组成，也会被视作不同的子串。
+
+
+
+#### 思路
+
+DP。假设dp数组为A\[i][j]表示字符串从i到j的子串是否是回文串的话，那么A\[i][j]是的前提是A\[i+1][j-1]是回文串且i和j处的字符相等，所以我们可以有解法一求解。
+
+
+
+
+
+#### 题解一
+
+```java
+class Solution {
+    public int countSubstrings(String s) {
+        int size = s.length();
+        boolean [][] f = new boolean[size][size];
+        //置初值
+        for(int i =0;i<size;++i){
+            Arrays.fill(f[i],true);
+        }
+        //dp
+        for(int i=size -1;i>=0;i--){
+            for(int j=i+1;j<size;++j){
+                f[i][j] = f[i+1][j-1]&&(s.charAt(i)==s.charAt(j));
+            }
+        }
+        //遍历dp数组 计算个数
+        int result = 0 ;
+        for(int i=0;i<size;++i){
+            for(int j=i;j<size;++j){
+                if(f[i][j])
+                    result++;
+            }
+        }
+        return result;
+    }
+}
+```
+
+
+
+
+
+
+
+### [131. 分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/)
+
+给你一个字符串 `s`，请你将 `s` 分割成一些子串，使每个子串都是 **回文串** 。返回 `s` 所有可能的分割方案。
+
+**回文串** 是正着读和反着读都一样的字符串。
+
+
+
+#### 思路
+
+dp+dfs回溯法。首先我们可以想到要用搜索，因为这相当于是在一个长度为n的数组中，找出所有可能的排列组合；但是我们不能够在每次搜索的时候才判断是不是回文串，所以我们可以考虑先用dp对数据做一个预处理，这样在搜索的时候直接用即可。dp预处理字符串可以参见上一题。
+
+
+
+#### 题解
+
+```java
+class Solution {
+     boolean [][] f;
+    List <String> ans = new ArrayList<String> ();
+    List <List<String>> result = new ArrayList<List<String>>();
+    int size;
+
+    public List<List<String>> partition(String s) {
+        //dp+回溯法
+        //首先通过dp算出回文串的情况
+        //H(i-1,j+1) = H(i,j)&&num[i-1]==num[j+1]
+        //接着通过dfs进行搜索 然后回溯
+        size = s.length();
+        f = new boolean[size][size];//dp存储
+        for(int i = 0;i < size ;++i){
+            Arrays.fill(f[i],true);//置初值为true
+        }
+        
+        //dp预处理
+        for(int i= size - 1; i>=0;--i){
+            for(int j=i+1;j<size;++j){
+                f[i][j] = (f[i+1][j-1])&&(s.charAt(i)==s.charAt(j));
+            }
+        }
+        //现在已经有了一个f数组 f[i][j]表示字符串i到j的子串是否是回文串
+        //这样我们进行搜索，每次遇到一个回文串就加进来
+        //然后把右边界往右边放 继续递归搜索
+        //当我们搜索到最后的时候 就找到了一种回文法 然后加入 回溯
+        //回溯的时候要注意把本次加入的内容删除掉
+        //这样我们就能找到所有的解
+        dfs(s,0); 
+        return result;
+    }
+
+    void dfs(String s, int n){
+        //已经到了搜索的尽头
+        if(n==size){
+            result.add(new ArrayList(ans));
+            return ; 
+        }
+        //还没到尽头
+        for(int j = n;j<size;++j){
+            if(f[n][j]){
+                //从当前到j是回文串
+                //那么我们加入该串到当前解法的ans中
+                ans.add(s.substring(n,j+1));
+                //继续dfs 但是要从j+1开始
+                dfs(s,j+1);
+                //这时候已经搜索完了，我们就要开始回溯
+                //删除我们在这次调用中加入到ans的解
+                //值得注意的是，在递归里加入的内容已经通过递归被删除了
+                //所以每次照顾好自己就行了
+                ans.remove(ans.size()-1);
+            }
+        }
+    }
+}
+```
+
+
+
