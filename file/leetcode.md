@@ -3741,3 +3741,72 @@ class Solution {
 
 
 
+## 2021-3-8
+
+### [132. 分割回文串 II](https://leetcode-cn.com/problems/palindrome-partitioning-ii/)
+
+给你一个字符串 `s`，请你将 `s` 分割成一些子串，使每个子串都是回文。
+
+返回符合要求的 **最少分割次数** 。
+
+
+
+#### 思路
+
+首先根据昨天的题目我们可以知道如何求出当前字符串中有多少个回文串。那么问题就变成了在这个字符串的多种拆分中哪一种可以有更少的回文串数量。
+
+首先考虑DFS，但是超时。
+
+接着考虑DP。我们可以得到一个这样的递推关系：j位置的最少拆分等于j前面所有能和j组成回文串的前一个的最少字符串数+1。例如j位置处的最小拆分，我们看j前面的，如果i处可以到j形成回文串，那么j-1的最小拆分加上1（即i到j）就是j处的一种拆分法，然后我们寻找所有拆分法里最小的那个，递推即可。
+
+
+
+
+#### 题解
+
+```java
+class Solution {
+    boolean [][] f;
+    int size;
+    public int minCut(String s) {
+        size = s.length();
+        f = new boolean[size][size];
+        for(int i=0;i<size;++i){
+            Arrays.fill(f[i],true);
+        }
+
+        ///dp
+        for(int i=size-1;i>=0;i--){
+            for(int j=i+1;j<size;++j){
+                f[i][j] = f[i+1][j-1]&&(s.charAt(i)==s.charAt(j));
+            }
+        }
+
+        //接下来找到一种切割方式 能将字符串分割成最少的几段
+        //dfs搜索太慢 考虑dp
+        //假定dp[i]表示到字符串i位置前面的最少次数
+        //则dp[i] = i前面j位置能形成ji回文且最小的情况
+        //有result个回文串 需要result-1次切割
+        int [] dp = new int [size];
+        Arrays.fill(dp,1);
+        for(int i=1;i<size;++i){
+            int min=dp[i-1]+1;//显然最差情况就是i-1加上自己独自回文
+            for(int j=0;j<i;++j){
+                if(f[j][i]){
+                    //j可以到i
+                    if(j==0) 
+                        min=1;
+                    else if(min>dp[j-1]+1)
+                        min=dp[j-1]+1;//相当于j-1后面的连一起了
+                }
+            }
+            dp[i]=min;
+        }
+        return dp[size-1]-1;
+    }
+
+}
+```
+
+
+
