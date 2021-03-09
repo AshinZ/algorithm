@@ -3810,3 +3810,48 @@ class Solution {
 
 
 
+## 2021-3-9
+
+### [1047. 删除字符串中的所有相邻重复项](https://leetcode-cn.com/problems/remove-all-adjacent-duplicates-in-string/)
+
+给出由小写字母组成的字符串 S，重复项删除操作会选择两个相邻且相同的字母，并删除它们。
+
+在 S 上反复执行重复项删除操作，直到无法继续删除。
+
+在完成所有重复项删除操作后返回最终的字符串。答案保证唯一。
+
+
+
+#### 思路
+
+利用栈进行匹配抵消即可。注意使用`StringBuffer`类
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public String removeDuplicates(String S) {
+        int size = S.length();
+        StringBuffer stack = new StringBuffer();
+        int top=-1;
+        for(int i=0;i<size;++i){
+            char x = S.charAt(i);//取字符
+            if(top>=0 && stack.charAt(top)==x){
+                //相等
+                stack.deleteCharAt(top);
+                top--;
+            }
+            else{
+                stack.append(x);
+                top++;
+            }
+        }
+        return stack.toString();
+    }
+}
+```
+
+
+
