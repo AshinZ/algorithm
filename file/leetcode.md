@@ -3855,3 +3855,469 @@ class Solution {
 
 
 
+## 2021-3-10
+
+### [46. 全排列](https://leetcode-cn.com/problems/permutations/)
+
+给定一个 **没有重复** 数字的序列，返回其所有可能的全排列。
+
+
+
+#### 思路
+
+DFS搜索。在搜索的过程中，我们需要考虑如何标记某个数字是否已经加入了这个结果中。我们可以考虑使用标记数组，为了减少空间使用，我们可以考虑使用哨兵的方式。
+
+简单的说，例如现在有一个序列`[10,8,9,1,2]`，如果在递归中，我们已经有两个数加入到了搜索中，那我们就把这两个数放到左边，通过数组的长度来确定这个哨兵的位置。当我们加入第三个数的时候，我们可以把这个数放到第三个位置，搜索完回溯的时候把这个数换回来即可。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    List <List<Integer>> result;
+    List <Integer> ans;
+    int size;
+
+    public List<List<Integer>> permute(int[] nums) {
+        //dfs搜索
+        result = new ArrayList<List<Integer>> ();
+        ans = new ArrayList<Integer>();
+        for (int num : nums) {
+            //初始化
+            ans.add(num);
+        }
+        size = nums.length;
+        //
+        dfs(ans,0);
+        return result;
+    }
+    //ans输入数组 
+    //length表示当前已经有多少个加入了全排列
+    void dfs(List<Integer> ans,int length){
+        if(length == size) {
+            //已经满了 加入到解中
+            result.add(new ArrayList<Integer>(ans));
+        }
+        else{
+            //没有满 进行遍历
+            for(int i=length;i<size;++i){
+                //先把没加入的数加入
+                Collections.swap(ans, length, i);
+                //进行dfs
+                dfs(ans,length+1);
+                //调换回顺序
+                Collections.swap(ans,length,i);
+            }
+        }
+    }
+}
+```
+
+
+
+### [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
+
+数字 `n` 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 **有效的** 括号组合。
+
+
+
+#### 思路
+
+常规思路：生成然后判断是不是。
+
+在这里我们考虑DP的做法。我们考虑这样的问题，当一对括号插入时，左括号肯定在右括号左边，基于这个思路，我们可以认为对于前一个的结果，我们可以把两个括号对上一个的结果进行逐个插入。例如`()`我们可以先把左括号放最左边，然后从右边选个位置放入右括号。但是这样我们会遇到一个问题，如`()`，当我们把右括号放在最右边，我们的左括号放在最开始还是第一个左括号后生成的串是一样的，也即会出现重复的情况。当然我们也可以考虑用map来去重。但是我们不妨这样考虑，既然会有重复，那么我们限定好左括号的位置是不是就可以了呢？这样我们就只需要考虑后面的情况即可。那右括号放在哪呢？我们可以这样考虑，假设前一个有n-1个括号，那么我们拆成两部分，左部分在dp数组中显然是没有重复的，而右部分也没有重复，把右括号放在这两者之间，我们就可以认为其是没有重复的。基于这样的思想，我们得到递推式：dp[n]="(" + dp[i] + ")" + dp[n-1-i]。接下来注意好边界条件即可。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public List<String> generateParenthesis(int n) {
+        List<List<String>> dp = new ArrayList<List<String>>();//dp数组
+        //初始化 0和1的情况
+        List <String> result0 = new ArrayList<String> ();
+        result0.add("");
+        dp.add(result0);
+        List <String> result1 = new ArrayList<String> (); //存储结果
+        result1.add("()");
+        dp.add(result1);
+        //考虑01特例
+        if(n<2) return dp.get(n);
+        for(int i=2;i<=n;++i){
+            //n次dp
+            //首先考虑到左括号在右边
+            //其次考虑到如果左括号插入在里面 那么等价于插入在最左边
+            //因为我们总可以把最左边那个和这个等价替换
+            //这样新的就是 (+q+)+p的组合 q和p的长度加起来是上一个长度
+            List<String> ans = new ArrayList<String>();
+            for(int j=0;j<i;++j){
+                //对temp进行dp
+                List <String> left = dp.get(j);
+                List <String> right = dp.get(i-1-j);
+                for (String s1 : left) {
+					for (String s2 : right) {
+						String el = "(" + s1 + ")" + s2;
+						ans.add(el);
+					}
+				}
+            }
+            dp.add(ans);
+        }
+        return dp.get(n);
+    }
+}
+```
+
+
+
+### [94. 二叉树的中序遍历](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)
+
+给定一个二叉树的根节点 `root` ，返回它的 **中序** 遍历。
+
+
+
+#### 思路
+
+用栈实现中序遍历。注意把握什么时候访问元素。
+
+
+
+#### 题解
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List <Integer> result = new ArrayList<Integer>();
+        if(root == null){
+            return result;
+        }
+        Stack <TreeNode> stack = new  Stack<TreeNode>();
+        //利用栈进行遍历
+        //左中右
+        while(root!=null||stack.size()!=0){
+            //左
+            while(root!=null){
+                stack.push(root);
+                root=root.left;
+            }
+            //中
+            root = stack.peek();
+            stack.pop();
+            //只在出栈的时候访问元素
+            result.add(root.val);
+            //右
+            root = root.right;
+        }
+        return result;
+    }
+}
+```
+
+
+
+### [406. 根据身高重建队列](https://leetcode-cn.com/problems/queue-reconstruction-by-height/)
+
+假设有打乱顺序的一群人站成一个队列，数组 people 表示队列中一些人的属性（不一定按顺序）。每个 people[i] = [hi, ki] 表示第 i 个人的身高为 hi ，前面 正好 有 ki 个身高大于或等于 hi 的人。
+
+请你重新构造并返回输入数组 people 所表示的队列。返回的队列应该格式化为数组 queue ，其中 queue[j] = [hj, kj] 是队列中第 j 个人的属性（queue[0] 是排在队列前面的人）。
+
+
+
+#### 思路
+
+两种思路，从高到低考虑和从低到高考虑。
+
+从高到低考虑：由于我们从高到低的进行插入，那么当我们插入到第i个时候，前面i-1个都会对i产生影响，那么这样我们就只要放到person\[i][1]个人之后就可以。
+
+从低到高考虑：由于我们从低到高进行插入，那么当插入到第i个的时候，前面的插入对其一点影响都没有，因为全都比他矮或者相等，所以我们只要选择第person\[i][1]个空位把他放进去即可。
+
+值得注意的是，我们需要考虑一下当身高一样时候的顺序问题。从高到低的时候，肯定是先排身高一样前面比他高的少的那个，这样才能实现他的数据比较少。反过来的时候则需要先排高的那个，这样其前面才能留出足够的空位。
+
+
+
+#### 题解：从低到高
+
+```java
+class Solution {
+    public int[][] reconstructQueue(int[][] people) {
+        Arrays.sort(people,new Comparator<int[]>(){
+            public int compare(int[] person1, int[] person2) {
+                //两个数组
+                if (person1[0] != person2[0]) {
+                    //如果身高不一样 那就按照身高排
+                    return person1[0] - person2[0];
+                } else {
+                    //如果身高一样那就把位置靠后的往后放
+                    return person2[1] - person1[1];
+                }
+            }
+        });
+        //这时候我们得到了升序的一个数列 同身高的时候降序
+        //[[4,4],[5,2],[5,0],[6,1],[7,1],[7,0]]
+        int size = people.length;
+        int [][] result = new int [size][];//构建返回数组
+        for(int [] person:people){
+            //遍历数组重建队列
+            //每个人前面都有person[2]个比它高的人
+            //换个角度说 比他矮的人其实不影响他 
+            //我们只需要从低到高进行插入 每次选择第person[2]个空位置即可
+            int spaces = person[1] + 1;
+            for (int i = 0; i < size; ++i) {
+                if (result[i] == null) {
+                    --spaces;
+                    if (spaces == 0) {
+                        result[i] = person;
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+}
+```
+
+
+
+#### 题解：从高到低
+
+```java
+class Solution {
+    public int[][] reconstructQueue(int[][] people) {
+        Arrays.sort(people,new Comparator<int[]>(){
+            public int compare(int[] person1, int[] person2) {
+                //两个数组
+                if (person1[0] != person2[0]) {
+                    //如果身高不一样 那就按照身高排
+                    return person2[0] - person1[0];
+                } else {
+                    //如果身高一样那就把位置靠后的往后放
+                    return person1[1] - person2[1];
+                }
+            }
+        });
+        //这时候我们得到了降序的一个数列 同身高的时候升序
+        int size = people.length;
+        List<int []> ans = new ArrayList<int []>();
+        for(int [] person:people){
+            //遍历数组重建队列
+            //因为先插入的都比其高 所以只要在第person[1]位置插入即可
+            ans.add(person[1],person);
+        }
+        return ans.toArray(new int[ans.size()][]);
+    }
+
+}
+```
+
+
+
+### [48. 旋转图像](https://leetcode-cn.com/problems/rotate-image/)
+
+给定一个 n × n 的二维矩阵 matrix 表示一个图像。请你将图像顺时针旋转 90 度。
+
+你必须在 原地 旋转图像，这意味着你需要直接修改输入的二维矩阵。请不要 使用另一个矩阵来旋转图像。
+
+
+
+#### 思路
+
+考虑一个矩阵，我们会发现，旋转这个矩阵等于一个四个数字的循环，我们需要把这个数字的循环往前循环一次。例如原来为`1,2,3,4`，那么我们可以将其旋转为`2,3,4,1`。那么这样我们就需要解决两个问题：
+
+- 如何找到这四个数字
+- 如何合理的进行遍历
+
+针对第一个问题，我们可以尝试画一个数组，写出他们的数字表达式，来进行尝试。而面对第二个问题，则需要我们合理的选择循环区域。简单的来说，对于一组四个数字，我们只要能遍历其中的一个数字即可，相当于我们要找到整个矩阵的四分之一。考虑一个偶数矩阵，这显然是容易找到的，而对于一个奇数矩阵，则需要我们尝试一些其他的切割方法，如下所示：
+
+![image-20210310215528882](https://i.loli.net/2021/03/10/46KZVuiElGozqbP.png)
+
+这样，我们就解决了这个问题。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public void rotate(int[][] matrix) {
+        //等于就是全部按照顺指针旋转
+        //考虑n*n 
+        //取组数据
+        //n-1-b,a->a,b->b,n-a-1->n-a-1,n-b-1 然后顺时针换位
+        //2,0->0,1->1,3->3,2
+        //考虑如何遍历全部
+        //如果是偶数矩阵 那么直接四等分 遍历一个小块就可以
+        //如果是奇数矩阵 则需要采取一种新的分割方法来遍历
+        int size = matrix.length;
+        int temp;//临时变量
+        for(int i=0;i<size/2;++i){
+            for(int j=0;j<(size+1)/2;++j){
+                temp = matrix[i][j];
+                matrix[i][j] = matrix[size-1-j][i];
+                matrix[size-1-j][i] = matrix[size-1-i][size-1-j];
+                matrix[size-1-i][size-1-j]=matrix[j][size-1-i];
+                matrix[j][size-1-i]=temp;
+            }
+        }
+    }
+}
+```
+
+
+
+
+
+### [39. 组合总和](https://leetcode-cn.com/problems/combination-sum/)
+
+给定一个无重复元素的数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
+
+candidates 中的数字可以无限制重复被选取。
+
+
+
+#### 思路
+
+首先，我们可以对`candidates`进行排序，将比`target`大的数据全部丢弃不管。
+
+接下来我们很容易想到这是一个搜索题，我们采取`DFS`。因为数据可以被无限次重复选用，所以我们先采取以下方法降低一些复杂度：
+
+- 每次从当前选择数据的最大数开始选，也即假如我们已经选择了`1,2,3`，那么接下来加入的数一定比3大。（`1,2,3,1`和`1,1,2,3`是一样的）
+- 大于target的函数直接返回。
+
+这就是题解一。
+
+但是发现提交后，速度不尽如人意，重新考虑剪枝的问题。如上所言，我们是在递归进入函数时发现`sum>target`时返回，那么不难想像，该函数的上一层函数的下面的递归，都是会大于target的。举例来说，`target`=5，当前`sum`=3，现在剩下可以选择的数有`3,4,5`，当我们选择3加入进入递归后，我们会结束3然后进入4，如此下去。但是因为我们的数据已经排了序了，所以后面的情况肯定都不会成功。所以我们可以在进入递归前就结束掉这样的情况。
+
+
+
+#### 题解一
+
+```java
+class Solution {
+    List<List<Integer>> result;
+    int size ;
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        Arrays.sort(candidates);//先排序
+        int number = candidates.length;
+        size = number;
+        for(int i=0;i<number;++i){
+            if(candidates[i]>target)
+                size = i;
+        }
+        result = new ArrayList<List<Integer>>();
+        List<Integer> ans = new ArrayList<Integer>();
+        //dfs
+        dfs(candidates,target,ans,0,0);
+        return result;
+    }
+    //数据表 目标值 解答列表 列表和 当前选择的元素序号
+    void dfs(int[] candidates,int target,List<Integer> ans,int sum,int limit){
+        //找到了一种解法
+        if(sum>target) return;
+        else if(sum==target){
+            result.add(new ArrayList<Integer>(ans));
+            return ;
+        }
+        for(int i=limit;i<size;++i){
+            ans.add(candidates[i]);
+            dfs(candidates,target,ans,sum+candidates[i],i);
+            ans.remove(ans.size()-1);
+        }
+    }
+}
+```
+
+
+
+#### 题解二
+
+```java
+class Solution {
+    List<List<Integer>> result;
+    int size ;
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        Arrays.sort(candidates);//先排序
+        int number = candidates.length;
+        size = number;
+        for(int i=0;i<number;++i){
+            if(candidates[i]>target)
+                size = i;
+        }
+        result = new ArrayList<List<Integer>>();
+        List<Integer> ans = new ArrayList<Integer>();
+        //dfs
+        dfs(candidates,target,ans,0,0);
+        return result;
+    }
+    //数据表 目标值 解答列表 列表和 当前选择的元素序号
+    void dfs(int[] candidates,int target,List<Integer> ans,int sum,int limit){
+        //找到了一种解法
+        if(sum==target){
+            result.add(new ArrayList<Integer>(ans));
+            return ;
+        }
+        for(int i=limit;i<size;++i){
+            if(sum+candidates[i]>target) return ;
+            ans.add(candidates[i]);
+            dfs(candidates,target,ans,sum+candidates[i],i);
+            ans.remove(ans.size()-1);
+        }
+    }
+}
+```
+
+
+
+
+
+### [287. 寻找重复数](https://leetcode-cn.com/problems/find-the-duplicate-number/)
+
+给定一个包含 n + 1 个整数的数组 nums ，其数字都在 1 到 n 之间（包括 1 和 n），可知至少存在一个重复的整数。
+
+假设 nums 只有 一个重复的整数 ，找出 这个重复的数 。
+
+
+
+#### 思路
+
+因为数字的值总在数组范围内，所以我们做一个映射，每次遇到一个值的时候，把对应位置的数组的数值加size，这样出现两次的地方的值就会加两次size，我们找这个即可。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public int findDuplicate(int[] nums) {
+        int size = nums.length;
+        for(int i=0;i<size;++i){
+            nums[nums[i]%size]+=size;
+        }
+        int i;
+        for(i=0;i<size;++i){
+            if(nums[i]>2*size)
+                break;
+        }
+        return i;
+    }
+}
+```
+
