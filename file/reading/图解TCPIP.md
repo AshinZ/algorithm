@@ -842,13 +842,11 @@ ICMP的消息大致可以分为两类：一类是通知出错原因的错误消�
 
 实现IP设置的即插即用。
 
-![image-20210309104612273](../AppData/Roaming/Typora/typora-user-images/image-20210309104612273.png)
-
-
+![image-20210309104612273](https://i.loli.net/2021/03/10/8V34BRLIJ6M5sKq.png)
 
 工作机制上，需要一台专门的DHCP服务器。
 
-![image-20210309104635810](../AppData/Roaming/Typora/typora-user-images/image-20210309104635810.png)
+![image-20210309104635810](https://i.loli.net/2021/03/10/RrpLHkvdU2f5m8G.png)
 
 ### NAT
 
@@ -856,7 +854,7 @@ NAT（Network Address Translator）是用于在本地网络中使用私有地址
 
 工作机制：对外使用一个公网，对内通过转换表进行拆分。
 
-![image-20210309110332596](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309110332596.png)
+![image-20210309110332596](https://i.loli.net/2021/03/10/RQrfmdj2UXwEoh7.png)
 
 
 
@@ -894,13 +892,13 @@ NAT（Network Address Translator）是用于在本地网络中使用私有地址
 
 IP首部会记录传输层使用的是什么协议，通信双方可以根据该协议实现通信。本层主要负责的就是传输，传输某个包到某个电脑。就像寄快递一样，我们寄到一个家以后，我们并不能知道是谁的快递，所以我们需要根据名字来进行区别。因为在传输层，我们会加入一个端口号来表示是和某个主机的某个端口进行通信。
 
-![image-20210309194045282](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309194045282.png)
+![image-20210309194045282](https://i.loli.net/2021/03/10/RqeLrnvKPMgy7xs.png)
 
 
 
 在这里我们先做一个简单的定义，我们自己用的电脑叫客户端，而我们访问的网站那端则成为服务端。
 
-![image-20210309194311207](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309194311207.png)
+![image-20210309194311207](https://i.loli.net/2021/03/10/RIj2dkFOKmDg3l7.png)
 
 
 
@@ -916,7 +914,7 @@ TCP用于在传输层有必要实现可靠传输的情况。由于它是面向�
 
 在使用TCP/UDP的时候，我们常常需要使用套接字。应用程序利用套接字，可以设置对端的IP地址、端口号，并实现数据的发送与接收。
 
-![image-20210309194802174](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309194802174.png)
+![image-20210309194802174](https://i.loli.net/2021/03/10/M2BDw8sSlgO7TGP.png)
 
 
 
@@ -924,7 +922,7 @@ TCP用于在传输层有必要实现可靠传输的情况。由于它是面向�
 
 举一个简单的例子，一台电脑部署了五个网站，但是ip是一样的，那么我们访问的时候如何知道访问的是哪一个呢？所以在这里我们就引入了端口号，通过端口来实现访问。简单的说，我们可以把端口看成是一个管子，一台电脑有很多个管子，每次我们访问其中的一个。
 
-![image-20210309194923536](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309194923536.png)
+![image-20210309194923536](https://i.loli.net/2021/03/10/bPsvpzyHrNZ36fY.png)
 
 #### 只有端口号够吗
 
@@ -932,7 +930,7 @@ TCP用于在传输层有必要实现可靠传输的情况。由于它是面向�
 
 比如我们开了两个不同的网页，这两个网页都是80端口，如果只看端口那我们就无法区分这两个。因此，TCP/IP或UDP/IP通信中通常采用5个信息来识别（这个信息可以在Unix或Windows系统中通过netstat -n 命令显示。） 一个通信。它们是“源IP地址”、“目标IP地址”、“协议号”、“源端口号”、“目标端口号”。只要其中某一项不同，则被认为是其他通信。
 
-![image-20210309195105208](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309195105208.png)
+![image-20210309195105208](https://i.loli.net/2021/03/10/A72JXpywoz6xSqr.png)
 
 #### 如何确定端口号
 
@@ -972,11 +970,11 @@ TCP的目的就是实现可靠的连接，为了达到这样的目的，TCP通�
 
 在TCP中，当发送端的数据到达接收主机时，接收端主机会返回一个已收到消息的通知。这个消息叫做确认应答（ACK（ACK（Positive Acknowled-gement）意指已经接收。） ）。就像两个人在讲话一样，我们如何知道对方是否在听我们讲话呢？很简单，观察他或者看他的回答，也即一种反馈。
 
-![image-20210309200019735](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309200019735.png)
+![image-20210309200019735](https://i.loli.net/2021/03/10/xiurpoJ37W2wVSn.png)
 
 而如果我们发现对方好像没听到我们说的话，我们就会再说一遍，TCP也是这样操作的：
 
-![image-20210309200059001](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309200059001.png)
+![image-20210309200059001](https://i.loli.net/2021/03/10/C8lAMp1oBYLiSfh.png)
 
 当然，这也可能是因为我们没收到答复而出现的情况。
 
@@ -984,9 +982,9 @@ TCP的目的就是实现可靠的连接，为了达到这样的目的，TCP通�
 
 那么问题来了，对于说话的人来说，说的哪句话是什么顺序，我们显然是知道的，但是对于接收的人他可能并不知道说话的顺序。所以我们就要在里面加上某句话是第几句这样的标签，也即序列号。
 
-![image-20210309200346153](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309200346153.png)
+![image-20210309200346153](https://i.loli.net/2021/03/10/sQldDYBWXJtvCag.png)
 
-![image-20210309200353515](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309200353515.png)
+![image-20210309200353515](https://i.loli.net/2021/03/10/uOg8EbRTBHmV1Kx.png)
 
 
 
@@ -998,13 +996,13 @@ TCP的目的就是实现可靠的连接，为了达到这样的目的，TCP通�
 
 为此，它在每次发包时都会计算往返时间（Round Trip Time也叫RTT。是指报文段的往返时间。） 及其偏差（RTT时间波动的值、方差。有时也叫抖动。） 。将这个往返时间和偏差相加重发超时的时间，就是比这个总和要稍大一点的值。
 
-![image-20210309200557943](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309200557943.png)
+![image-20210309200557943](https://i.loli.net/2021/03/10/glLGIdvcD1hbpNZ.png)
 
 #### 连接管理
 
 讲完了数据的发送，我们需要介绍一下连接的管理。在通信的最开始，两个主机并没有连接到一起，虽然他们可能物理上连接在了一起。我们通过SYN信号和ACK信号来实现连接的管理。
 
-![image-20210309200723544](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309200723544.png)
+![image-20210309200723544](https://i.loli.net/2021/03/10/sl4gQZ6Jbv3yYtS.png)
 
 就比如A要和B讲话一样，A先需要告诉B他想说点啥，B需要表示知道了这样的请求并且表示同意，然后A知道B同意以后也需要回复B一个信号。我们可以把这个看成是一个凡有请求，必有回答的过程。这样的过程，我们成为三次握手。
 
@@ -1018,7 +1016,7 @@ TCP的目的就是实现可靠的连接，为了达到这样的目的，TCP通�
 
 MSS是在三次握手的时候，在两端主机之间被计算得出。两端的主机在发出建立连接的请求时，会在TCP首部中写入MSS选项，告诉对方自己的接口能够适应的MSS的大小，这样协商得到一个MSS的大小即可。
 
-![image-20210309201744396](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309201744396.png)
+![image-20210309201744396](https://i.loli.net/2021/03/10/HmYdXoevqF4LpfC.png)
 
 
 
@@ -1026,15 +1024,15 @@ MSS是在三次握手的时候，在两端主机之间被计算得出。两端�
 
 TCP以1个段为单位，每发一个段进行一次确认应答的处理，如图6.14。这样的传输方式有一个缺点。那就是，包的往返时间越长通信性能就越低。
 
-![image-20210309201812442](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309201812442.png)
+![image-20210309201812442](https://i.loli.net/2021/03/10/LinSYXVDpcbv8Ms.png)
 
 也即我们不能等收到了结果再进行操作，这样的同步并不适合需求高速率的我们。为解决这个问题，TCP引入了窗口这个概念。即使在往返时间较长的情况下，它也能控制网络性能的下降。
 
-![image-20210309201851328](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309201851328.png)
+![image-20210309201851328](https://i.loli.net/2021/03/10/usc5NdklYXWmZaP.png)
 
 窗口大小就是指无需等待确认应答而可以继续发送数据的最大值。需要用到一块缓冲区来存储。整个流程就是，我们先把一些数据发出去，然后把他们保存下来，防止需要重发的情况出现，如果收到了应答，那么我们就删除相关的缓存。这里有点类似于计组里的流水线，通过流水线来加快指令的执行。
 
-![image-20210309202125022](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309202125022.png)
+![image-20210309202125022](https://i.loli.net/2021/03/10/Tr9H7divCQG5hcW.png)
 
 
 
@@ -1042,7 +1040,7 @@ TCP以1个段为单位，每发一个段进行一次确认应答的处理，如�
 
 在窗口控制里，我们已经采取了类似流水的方式加快了包的发送，那么我们自然也就不能根据时间来进行重发管理了。于是我们采取如下的方式进行重发管理：
 
-![image-20210309203235295](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309203235295.png)
+![image-20210309203235295](https://i.loli.net/2021/03/10/vUkaA4gspiCuxEQ.png)
 
 如果某个包接收端收到了但ACK发送端没收到，这不会出现影响，因为接收端不会发出连着三次的未收到信号，所以无所谓。
 
@@ -1061,7 +1059,7 @@ TCP首部中，专门有一个字段用来通知窗口大小。接收主机将�
 
 简单的来说，我们可以把这个认为是一种协商的窗口大小的机制。
 
-![image-20210309204202834](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309204202834.png)
+![image-20210309204202834](https://i.loli.net/2021/03/10/rKQuYkgtSMBF93A.png)
 
 
 
@@ -1092,7 +1090,7 @@ TCP首部中，专门有一个字段用来通知窗口大小。接收主机将�
 
 当接收端收到一个包以后，不立即进行应答，可以等收到更多的包后再进行应答。
 
-![image-20210309210005761](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309210005761.png)
+![image-20210309210005761](https://i.loli.net/2021/03/10/1hl6mtjWIK43Dq9.png)
 
 
 
@@ -1100,19 +1098,19 @@ TCP首部中，专门有一个字段用来通知窗口大小。接收主机将�
 
 简单的说，我们发送邮件的时候，会有回执告诉我们是否发送成功，我们的应答信息可以跟这个回执一起返回回来，这样就不用单独的发包了。
 
-![image-20210309210143977](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309210143977.png)
+![image-20210309210143977](https://i.loli.net/2021/03/10/4pDtgaSN2jrQksC.png)
 
 
 
 ### UDP格式
 
-![image-20210309210648724](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309210648724.png)
+![image-20210309210648724](https://i.loli.net/2021/03/10/VL5PEwWAcoMs4Gn.png)
 
 
 
 #### TCP首部格式
 
-![image-20210309210852489](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20210309210852489.png)
+![image-20210309210852489](https://i.loli.net/2021/03/10/fxGWkZtdCHDlaBX.png)
 
 注意，这里有一个紧急指针，解释下：
 该字段长为16位。只有在URG控制位为1时有效。该字段的数值表示本报文段中紧急数据的指针。正确来讲，从数据部分的首位到紧急指针所指示的位置为止为紧急数据。因此也可以说紧急指针指出了紧急数据的末尾在报文段中的位置。
