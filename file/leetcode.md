@@ -4321,3 +4321,274 @@ class Solution {
 }
 ```
 
+
+
+## 2021-3-11
+
+### [114. 二叉树展开为链表](https://leetcode-cn.com/problems/flatten-binary-tree-to-linked-list/)
+
+给你二叉树的根结点 root ，请你将它展开为一个单链表：
+
+展开后的单链表应该同样使用 TreeNode ，其中 right 子指针指向链表中下一个结点，而左子指针始终为 null 。
+展开后的单链表应该与二叉树 先序遍历 顺序相同。
+
+
+
+#### 思路
+
+前序遍历，然后把链表连接起来即可。
+
+
+
+#### 题解
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public void flatten(TreeNode root) {
+        if(root == null) return;
+        Stack <TreeNode> stack = new Stack<TreeNode>();
+        stack.push(root);
+        TreeNode head = new TreeNode();
+        TreeNode q = head;
+        while(!stack.empty()){
+            TreeNode p = stack.peek();
+            stack.pop();
+            if(p.right!=null){
+                stack.push(p.right);
+            }
+            if(p.left!=null){
+                stack.push(p.left);
+            }
+            p.left = null;
+            head.right = p;
+            head = head.right;
+        }
+    }
+}
+```
+
+
+
+#### [238. 除自身以外数组的乘积](https://leetcode-cn.com/problems/product-of-array-except-self/)
+
+给你一个长度为 n 的整数数组 nums，其中 n > 1，返回输出数组 output ，其中 output[i] 等于 nums 中除 nums[i] 之外其余各元素的乘积。
+
+
+
+#### 思路
+
+首先我们肯定需要拿一个数组来记录结果。接着我们考虑如何进行计算，显然，我们是可以进行暴力计算的。但是仔细思考我们会发现，a[i]的左边的乘积和a[i-1]的左边乘积是有关系的，他们只差了一个数字，我们可以这样理解，从左边乘过来，每次乘我们其实都会保存当前乘的数。例如数组为`1,2,3,4,5`，那么3的左侧*3本身就是得到4的左侧值。同样的道理，我们可以再开一个数组来记录右边的乘积情况，那么a[i]的自身意外的乘积就是左边的乘积乘右边的乘积。在考虑优化，我们会发现，我们每次都只会用到一个数据，例如a[n]的右边，我们只看n+1的情况，而不会用到n+2等，所以我们可以考虑用一个变量保存下这个乘积。这样我们就又进行了一层优化。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int size = nums.length;
+        int [] result = new int [size];
+        result[0]=1; //这样就不需要初始化1了
+        for(int i=1;i<size;++i){
+            result[i] = result[i-1] * nums[i-1];
+        }
+        int R=1; //记录右边的乘积 
+        //不记录的话 模仿左边会导致有些数重新乘了
+        for(int i=size-2;i>=0;--i){
+            R = R * nums[i+1];
+            result[i] = result[i] * R;
+        }
+        return result;
+    }
+}
+```
+
+
+
+
+
+### [105. 从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+
+根据一棵树的前序遍历与中序遍历构造二叉树。
+
+
+
+#### 思路
+
+前序遍历：中，左子串，右子串
+
+中序遍历：左子串，中，右子串。
+
+所以我们可以根据前序的第一个字符把中旬进行切割，然后用递归切割中序的左子串和前序的左子串，同理切割右子串即可。
+
+注意好对应的区间开闭：假设串为`[0,n-1]`，中序的中间字符出现在`in`位置，那么前序序列被切割为`0`，`[1,in]`，`[in+1,n-1]`，中序切割为`[0,in]`，`[in]`，`[in+1,n-1]`。
+
+在这里有一个可以优化的地方就是找出前序的第一个符号在中序中出现的位置，我采用的是遍历，但是其实可以使用`map`来存储。
+
+#### 题解
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int size;
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        TreeNode root = new TreeNode();
+        int in = 0;
+        size = preorder.length;
+        for(;in<size;++in){
+            if(inorder[in] == preorder[0])
+                break;
+        }
+        root.val = preorder[0];
+        root.left = Tree(preorder,inorder,1,in,0,in-1);
+        root.right = Tree(preorder,inorder,in+1,size-1,in+1,size-1); 
+        return root;
+    }
+
+    TreeNode Tree(int [] preorder,int[ ] inorder,int preL,int preR,int inL,int inR){
+        if(preR<preL||inR<inL) return null;
+        TreeNode root = new TreeNode(preorder[preL],null,null);
+        if(inR==inL){
+            return root;
+        }
+        int in = 0;
+        for(;in<=inR-inL;++in){//找中间节点
+            if(inorder[inL+in] == preorder[preL])
+                break;
+        }
+        root.left = Tree(preorder,inorder,preL+1,preL+in,inL,inL+in-1);
+        root.right = Tree(preorder,inorder,preL+1+in,preR,inL+in+1,inR);
+        return root;
+    }
+}
+```
+
+
+
+### [96. 不同的二叉搜索树](https://leetcode-cn.com/problems/unique-binary-search-trees/)
+
+给定一个整数 *n*，求以 1 ... *n* 为节点组成的二叉搜索树有多少种？
+
+
+
+#### 思路
+
+显然，暴力去做是不合适的，我们可以考虑搜索树的特征：比根小的在左边，比根大的在右边。那我们思考一下，如果我们取k作为根，那么左边就有k-1个数，右边有n-k个数，而k-1和n-k的构成的搜索树的可能的数目也正好递归的成为了一个子问题，即：
+
+- k-1为节点的二叉搜索树的数目
+- n-k为节点的二叉搜索树的数目
+
+这样就很明显的成为了一个dp问题，那么我们考虑n个数时的递推公式即可。当有n个数时，每个数都可以做root，所以假设dp[n]是n个数的数目，那么递推公式为：
+$$
+dp[n] = \sum_{i=0}^{n-1}dp[i]*dp[n-1-i]
+$$
+根据该递推公式，我们就可以简单的求出解了。
+
+
+
+#### 题解
+
+````java
+class Solution {
+    public int numTrees(int n) {
+        //对于一个升序序列 选定一个数作为root以后
+        //其左子树就是左边k个数的可能的情况
+        //其右子树也是其右边k个数可能的情况
+        int [] dp = new int [n+1];
+        dp[1] = 1;
+        dp[0] = 1;
+        for(int i=2;i<=n;++i){
+            //dp[n] = dp[i]*dp[n-i-1]  0<=i<n
+            dp[i] = 0;
+            for(int j=0;j<i;++j){
+                dp[i] += dp[j]*dp[i-1-j];
+            }
+        }
+        return dp[n];
+    }
+}
+````
+
+
+
+
+
+### [64. 最小路径和](https://leetcode-cn.com/problems/minimum-path-sum/)
+
+给定一个包含非负整数的 `m x n` 网格 `grid` ，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。
+
+**说明：**每次只能向下或者向右移动一步。
+
+
+
+#### 思路
+
+经典DP问题。要么往下走要么往右走，所以如果我们要找最小的话，只要看左边和上面哪个小即可。
+
+考虑优化，建立一个`(m+1)*(n*1)`的数组，设置为较大值，这样就能减少掉对边界的检查。但是在复杂度上差距不大。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public int minPathSum(int[][] grid) {
+        //dp
+        //显然只能往下或者往右
+        //那么到x,y的最小值要么来自于上方 要么来自于左边
+        int x = grid.length;
+        int y = grid[0].length;
+        int [][] dp = new int [x][y];
+        dp[0][0] = grid[0][0];
+        for(int i=0;i<x;++i){
+            for(int j=0;j<y;++j){
+                if(j!=0&&i!=0){
+                    //正常
+                    dp[i][j] = (dp[i-1][j]>dp[i][j-1])?dp[i][j-1]+grid[i][j]:dp[i-1][j]+grid[i][j];
+                }
+                else if(i==0&&j!=0){
+                    //第一行
+                    dp[i][j] = dp[i][j-1]+grid[i][j];
+                }
+                else if(i!=0&&j==0){
+                    //第一列
+                    dp[i][j] = dp[i-1][j]+grid[i][j];
+                }
+            }
+        }
+        return dp[x-1][y-1];
+    }
+}
+```
+
