@@ -4592,3 +4592,107 @@ class Solution {
 }
 ```
 
+
+
+## 2021-3-12
+
+### [236. 二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/)
+
+给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。
+
+百度百科中最近公共祖先的定义为：“对于有根树 T 的两个节点 p、q，最近公共祖先表示为一个节点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）。”
+
+
+
+#### 思路
+
+递归搜索，从下往上。如果一个root的两边都能找到节点，说明root就是最近的那个，直接把root往上传即可。如果只有一边的话，那也保持那个节点往上传，直到两者相遇。值得注意的是，如果p本身就是q的祖先，那么这样会出现我们把p的指针传到最上方的情况，这样也是符合要求的。
+
+
+
+#### 题解
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        return search(root,p,q);
+    }
+
+    TreeNode search (TreeNode root, TreeNode p, TreeNode q){
+        if(root == null) return null;
+        TreeNode left = search(root.left,p,q);
+        TreeNode right = search(root.right,p,q);
+        //先看左右子树有没有
+        if(left!=null&&right!=null) return root; //如果都有 那就说明这就是最近的
+        else if(root== p || root == q){ //接下来考虑自己是否的情况
+            //如果自己是那么就返回自己的指针 
+            return root;
+        }
+        else  if(left!=null) return left;
+        else  if(right!=null) return right;
+        return null;
+    }
+    
+}
+```
+
+
+
+### [739. 每日温度](https://leetcode-cn.com/problems/daily-temperatures/)
+
+请根据每日 气温 列表，重新生成一个列表。对应位置的输出为：要想观测到更高的气温，至少需要等待的天数。如果气温在这之后都不会升高，请在该位置用 0 来代替。
+
+例如，给定一个列表 temperatures = [73, 74, 75, 71, 69, 72, 76, 73]，你的输出应该是 [1, 1, 4, 2, 1, 1, 0, 0]。
+
+提示：气温 列表长度的范围是 [1, 30000]。每个气温的值的均为华氏度，都是在 [30, 100] 范围内的整数。
+
+
+
+#### 思路
+
+维护单调栈，类似于找下一个更大元素，遇到大的就弹栈，遇到小的压栈即可。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public int[] dailyTemperatures(int[] T) {
+        //等价于找下一个比他大的数字的位置
+        //维护一个单调栈即可
+        int size = T.length;
+        Stack <Integer> stack = new Stack<Integer>();
+        int [] result = new int [size];
+        stack.push(0);
+        for(int i=1;i<size;++i){
+            while(!stack.empty()&&T[i]>T[stack.peek()]){
+                //当前数比栈里面大
+                int num = stack.pop();
+                result[num] = i-num;
+            }
+            //此时小 压栈
+            stack.push(i);
+        }
+        while(!stack.empty()){
+            //里面的都没有更小的了
+            result[stack.pop()] = 0;
+        }
+        return result;
+    }
+}
+```
+
+
+
+
+
