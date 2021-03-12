@@ -4694,5 +4694,271 @@ class Solution {
 
 
 
+### [101. 对称二叉树](https://leetcode-cn.com/problems/symmetric-tree/)
+
+给定一个二叉树，检查它是否是镜像对称的。
+
+
+
+#### 思路
+
+如果是对称的，那么左右的节点应该可以互换，那么分两只遍历即可，一个往左一个往右。
+
+
+
+#### 题解
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        return check(root,root);
+    }
+
+    boolean check(TreeNode p,TreeNode q){
+        if(q==null && p == null){
+            return true;
+        }
+        else if(q==null || p==null){
+            return false;
+        }
+        //两者都非空
+        return p.val==q.val&&check(p.left,q.right)&&check(p.right,q.left);
+    }
+}
+```
+
+
+
+### [538. 把二叉搜索树转换为累加树](https://leetcode-cn.com/problems/convert-bst-to-greater-tree/)
+
+给出二叉 搜索 树的根节点，该树的节点值各不相同，请你将其转换为累加树（Greater Sum Tree），使每个节点 node 的新值等于原树中大于或等于 node.val 的值之和。
+
+提醒一下，二叉搜索树满足下列约束条件：
+
+节点的左子树仅包含键 小于 节点键的节点。
+节点的右子树仅包含键 大于 节点键的节点。
+左右子树也必须是二叉搜索树。
+
+
+
+
+
+#### 思路
+
+BST的特性是左边小右边大，显然我们可以按照中序遍历，这样会得到一个递增序列，然后从后往前加即可。
+
+优化：既然要从后往前，不如直接从右边开始遍历。
+
+
+
+#### 题解：从左往右
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public TreeNode convertBST(TreeNode root) {
+        //bst满足左小右大 我们可以做中序遍历
+        //这样得到一个递增序列 然后从后往前做累加和
+        Stack <TreeNode> stack = new Stack<TreeNode>();
+        List<TreeNode> list = new ArrayList<TreeNode>();
+        TreeNode p = root;
+        while(root!=null||!stack.empty()){
+            //左
+            while(root!=null){
+                stack.push(root);
+                root=root.left;
+            }
+            //中
+            root = stack.pop();
+            //加入到list
+            list.add(root);
+            //右
+            root = root.right;
+
+        }
+        //每个数都是该数+他后面的所有数
+        //所以叠加即可
+        for(int i=list.size()-2;i>=0;i--){
+            //从后往前
+            list.get(i).val+=list.get(i+1).val;
+        }
+        return p;
+    }
+}
+```
+
+
+
+#### 题解：从右往左
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public TreeNode convertBST(TreeNode root) {
+        //bst满足左小右大 我们可以做中序遍历
+        //这样得到一个递增序列 然后从后往前做累加和
+        Stack <TreeNode> stack = new Stack<TreeNode>();
+        List<TreeNode> list = new ArrayList<TreeNode>();
+        TreeNode p = root;
+        int sum = 0;
+        while(root!=null||!stack.empty()){
+            //右
+            while(root!=null){
+                stack.push(root);
+                root=root.right;
+            }
+            //中
+            root = stack.pop();
+            root.val += sum;
+            sum = root.val;
+            //加入到list
+            list.add(root);
+            //左
+            root = root.left;
+        }
+        return p;
+    }
+}
+```
+
+
+
+### [215. 数组中的第K个最大元素](https://leetcode-cn.com/problems/kth-largest-element-in-an-array/)
+
+在未排序的数组中找到第 **k** 个最大的元素。请注意，你需要找的是数组排序后的第 k 个最大的元素，而不是第 k 个不同的元素。
+
+
+
+#### 思路
+
+排序，然后找到相关元素即可。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        //考虑排序然后直接返回相关元素即可
+        //快排
+        Arrays.sort(nums);
+        return nums[nums.length-k];
+    }
+}
+```
+
+
+
+
+
+### [102. 二叉树的层序遍历](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/)
+
+给你一个二叉树，请你返回其按 **层序遍历** 得到的节点值。 （即逐层地，从左到右访问所有节点）。
+
+
+
+#### 题解
+
+层次遍历，上一层遍历完就更新下一层即可。
+
+
+
+#### 题解
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
+        if(root==null) return result;
+        List<Integer> ans = new ArrayList<Integer>();
+        List<TreeNode> tree = new ArrayList<TreeNode>(); 
+        tree.add(root);
+        int head=0,rail=0;
+        int flag=0;//层数
+        while(head<=rail){
+            TreeNode p = tree.get(head);//获取头
+            ans.add(p.val); //加到数组里
+            if(p.left!=null){
+                rail++;
+                tree.add(p.left);
+            }
+            if(p.right!=null){
+                rail++;
+                tree.add(p.right);
+            }
+            if(head == flag ){//一层遍历结束
+                flag = rail;
+                //加入数据
+                result.add(new ArrayList<Integer>(ans));
+                ans.clear();
+            }
+            head ++;
+        }
+        return result;
+    }
+}
+```
+
+
+
 
 
