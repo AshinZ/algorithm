@@ -4962,3 +4962,79 @@ class Solution {
 
 
 
+## 2021-3-13
+
+### [279. 完全平方数](https://leetcode-cn.com/problems/perfect-squares/)
+
+给定正整数 n，找到若干个完全平方数（比如 1, 4, 9, 16, ...）使得它们的和等于 n。你需要让组成和的完全平方数的个数最少。
+
+给你一个整数 n ，返回和为 n 的完全平方数的 最少数量 。
+
+完全平方数 是一个整数，其值等于另一个整数的平方；换句话说，其值等于一个整数自乘的积。例如，1、4、9 和 16 都是完全平方数，而 3 和 11 不是。
+
+
+
+#### 思路
+
+DP。假设dp[n]是数字n的最小组合，那么dp[n]=min{dp[j]+dp[n-j]，其中1<j<n}。
+
+考虑优化，我们优先考虑最大的那个组合数，例如24，我们先考虑16+8的情况。
+
+
+
+#### 题解一
+
+```java
+class Solution {
+    public int numSquares(int n) {
+        int[] dp = new int [n+1];
+        for(int i=1;i<=Math.sqrt(n);++i){
+            //把是完全平方数的都变成1
+            dp[i*i] = 1;
+        }
+        for(int i=2;i<=n;++i){
+            if(dp[i]==1) continue;
+            int min =9999; ///寻找最小
+            for(int j=i/2;j<i;++j){
+                //dp[n] = min{dp[j]+dp[n-j]} 1<j<n
+                int sum = dp[j]+dp[i-j];//记录加和
+                if(sum<min) min = sum;
+            }
+            dp[i]=min;
+        }
+        return dp[n];
+    }
+}
+```
+
+
+
+#### 题解二
+
+```java
+class Solution {
+    public int numSquares(int n) {
+        int[] dp = new int [n+1];
+        for(int i=1;i<=Math.sqrt(n);++i){
+            //把是完全平方数的都变成1
+            dp[i*i] = 1;
+        }
+        for(int i=2;i<=n;++i){
+            if(dp[i]==1) continue;
+            int min =9999; ///寻找最小
+            for(int j=1;j<Math.sqrt(i);++j){
+                //dp[n] = min{dp[j]+dp[n-j]} 1<j<n
+                int sum = dp[j*j]+dp[i-j*j];//记录加和
+                if(sum<min) min = sum;
+            }
+            dp[i]=min;
+        }
+        return dp[n];
+    }
+}
+```
+
+
+
+
+
