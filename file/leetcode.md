@@ -5036,5 +5036,218 @@ class Solution {
 
 
 
+## 2021-3-14
+
+### [148. 排序链表](https://leetcode-cn.com/problems/sort-list/)
+
+给你链表的头结点 `head` ，请将其按 **升序** 排列并返回 **排序后的链表** 。
+
+
+
+#### 思路
+
+自顶向上归并排序，我们需要先统计整个的长度，然后通过多个指针来进行链表切割，然后调用合并有序链表函数进行合并。
+
+
+
+#### 题解
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode sortList(ListNode head) {
+        //归并排序
+        //通过合并有序链表来作为合并
+        //我们只需要负责切割就可以了
+        if(head == null) return head;
+        int length = 0; //统计长度
+        ListNode p = head;
+        while(p!=null){
+            length++;
+            p=p.next;
+        }
+        //这样我们得到了length
+        //开始自底向上归并
+        ListNode node1 = new ListNode(0,head);//加一个空头来接上
+        //从1开始做归并 1.2.4
+        for(int sub = 1;sub<length;sub=sub<<1){
+            ListNode pre = node1;//记录这一段的上一个指针
+            ListNode now = node1.next; //用来遍历的指针
+            while(now!=null){
+                ListNode h1 = now; //记录第一个链表起始
+                for(int i=1;i<sub && now.next!=null ;++i){
+                    now = now.next;
+                }
+                ListNode h2 = now.next; //记录二链表起始
+                now.next = null;//让链表一那一段成为一个独立链表
+                now = h2;
+                //第二段链表
+                 for (int i=1; i < sub && now != null && now.next != null; i++) {
+                    now = now.next;
+                }
+                ListNode next = null;
+                if(now!=null ){ //后面还有
+                    next =now.next;//下一个开始指针
+                    now.next=null;//当前链表独立
+                }
+                ListNode merge = merge(h1,h2);//合并两段指针
+                pre.next = merge;//接上
+                //找到这段链表的最后 给下次接上
+                while(pre.next!=null){
+                    pre=pre.next;
+                }
+                now = next;//得到下一段开始
+            }
+        }
+        return node1.next;
+    }
+
+     ListNode merge(ListNode l1, ListNode l2) {
+        //特例
+        if(l1==null&&l2==null) return null;
+        else if(l1==null) return l2;
+        else if(l2==null) return l1;
+        //normal
+        ListNode head,p;
+        head=(l1.val > l2.val)?l2:l1;
+        if(l1.val > l2.val) 
+            l2=l2.next;
+        else l1=l1.next;
+        p=head;
+        while(l1!=null&&l2!=null){
+            //合并
+            if(l1.val > l2.val){
+                head.next=l2;
+                head=head.next;
+                l2=l2.next;
+            }
+            else{
+                head.next=l1;
+                head=head.next;
+                l1=l1.next;
+            }
+        }
+        if(l1!=null)
+            head.next=l1;
+        else if(l2!=null)
+            head.next=l2;
+        return p;
+    }
+}
+```
+
+
+
+### [49. 字母异位词分组](https://leetcode-cn.com/problems/group-anagrams/)
+
+给定一个字符串数组，将字母异位词组合在一起。字母异位词指字母相同，但排列不同的字符串。
+
+
+
+#### 思路
+
+重点在于如何判断两个字符串是字母异位词。考虑两种方法：
+
+- 排序
+- 26进制
+
+在这里采取了排序法。
+
+在讨论区看到用质数替代26进制的，觉得很酷。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public List<List<String>> groupAnagrams(String[] strs) {
+        Map<String,List<String>> mp = new HashMap<String, List<String>>();
+        for(String str:strs){
+            char [] array = str.toCharArray();//转换为数组
+            Arrays.sort(array);
+            String key = new String(array);
+            //如果有就返回那个list 否则重新建立
+            List<String> list = mp.getOrDefault(key, new ArrayList<String>());
+            //加入这个string
+            list.add(str);
+            mp.put(key, list);
+        }
+        return new ArrayList<List<String>>(mp.values());
+    }
+}
+```
+
+
+
+### [75. 颜色分类](https://leetcode-cn.com/problems/sort-colors/)
+
+给定一个包含红色、白色和蓝色，一共 n 个元素的数组，原地对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
+
+此题中，我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色
+
+
+
+#### 思路
+
+要原地排序，而数据又只是`1,2,0`，那我们可以考虑把0放最前面，2放最后面，这样1就自然在中间了。考虑以下的情况：
+
+- 遍历到1
+  - 直接跳过
+- 遍历到0，往前交换
+  - 交换的是1，不影响
+  - 交换的是2：考虑到如果有2,2已经全部被放到后面去了，所以不存在这种可能
+- 遍历到2，和后面的交换
+  - 交换的是0：这样的话，我们要将其往前交换，为了维护代码，我们可以将遍历的指针回退到这个数
+  - 交换的是1：不影响
+  - 交换的是2：同样要往后交换，所以回退指针
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public void sortColors(int[] nums) {
+        //原地排序
+        //考虑一前一后交换
+        //一个指针表示0的最后一个
+        //一个指针表示2的第一个
+        int size = nums.length;
+        int pos0=0,pos2=size-1;
+        //当i遇到pos2的时候 说明后面全是2
+        for(int i=0;i<=pos2;++i){
+            if(0 == nums[i]){
+                int temp = nums[pos0];//记录0
+                nums[pos0] = nums[i];
+                nums[i] = temp;
+                pos0++;
+            }
+            else if(2 == nums[i]) {
+                //2的情况 交换
+                int temp = nums[pos2];//记录0
+                nums[pos2] = nums[i];
+                nums[i] = temp;
+                pos2--;
+                //注意回退
+                i--;
+            }
+            //遇到1跳过即可
+        }
+    }
+}
+```
+
+
+
 
 
