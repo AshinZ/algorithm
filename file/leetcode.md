@@ -5249,5 +5249,326 @@ class Solution {
 
 
 
+## 2021-3-15
 
+### [54. 螺旋矩阵](https://leetcode-cn.com/problems/spiral-matrix/)
+
+给你一个 `m` 行 `n` 列的矩阵 `matrix` ，请按照 **顺时针螺旋顺序** ，返回矩阵中的所有元素。
+
+
+
+#### 思路
+
+直接模拟，注意方向和已经遍历过的就不能在遍历即可。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public List<Integer> spiralOrder(int[][] matrix) {
+        List<Integer> result = new ArrayList<Integer>();
+        int x = matrix.length; 
+        if(x==0) return result;
+        int y = matrix[0].length;
+        if(y==0) return result;
+        int i=0,j=0;
+        int num=0;
+        int dict = 0;//0右 1下 2左 3上
+        int [][]direction = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};;
+        while(num<x*y){
+            result.add(matrix[i][j]);
+            matrix[i][j] = 101;//已走过的标记下
+            int newx = i + direction[dict][0];
+            int newy = j + direction[dict][1];
+            if(newx==x || newx<0 ||newy==y||newy<0 || matrix[newx][newy]==101){
+                //换方向
+                dict = (dict+1)%4;
+                //新的坐标
+                newx = i + direction[dict][0];
+                newy = j + direction[dict][1];
+            }
+            i = newx;
+            j = newy;
+            num++;
+        }
+        return result;
+    }
+}
+```
+
+
+
+
+
+### [155. 最小栈](https://leetcode-cn.com/problems/min-stack/)
+
+设计一个支持 push ，pop ，top 操作，并能在常数时间内检索到最小元素的栈。
+
+push(x) —— 将元素 x 推入栈中。
+pop() —— 删除栈顶的元素。
+top() —— 获取栈顶元素。
+getMin() —— 检索栈中的最小元素。
+
+
+
+#### 思路
+
+通过一个栈来实现，但是栈不止存储数据，还存储当前位置对应的最小元素。
+
+
+
+#### 题解
+
+```java
+class MinStack {
+    Stack <List<Integer>> stack;
+    /** initialize your data structure here. */
+    public MinStack() {
+        stack = new Stack<List<Integer>> ();
+    }
+    
+    public void push(int x) {
+        List<Integer> add = new ArrayList<Integer>();
+        if(stack.empty() || x<stack.peek().get(1)){
+            //new min or empty stack
+            add.add(x);
+            add.add(x);
+        }
+        else{
+            add.add(x);
+            add.add(stack.peek().get(1));
+        }
+        stack.push(add);
+    }
+    
+    public void pop() {
+        stack.pop();
+    }
+    
+    public int top() {
+        return stack.peek().get(0);
+    }
+    
+    public int getMin() {
+        return stack.peek().get(1);
+    }
+}
+
+/**
+ * Your MinStack object will be instantiated and called as such:
+ * MinStack obj = new MinStack();
+ * obj.push(x);
+ * obj.pop();
+ * int param_3 = obj.top();
+ * int param_4 = obj.getMin();
+ */
+```
+
+
+
+
+
+### [543. 二叉树的直径](https://leetcode-cn.com/problems/diameter-of-binary-tree/)
+
+给定一棵二叉树，你需要计算它的直径长度。一棵二叉树的直径长度是任意两个结点路径长度中的最大值。这条路径可能穿过也可能不穿过根结点。
+
+
+
+#### 思路
+
+我们可以明显的感受到，一条最大路径一定是一个倒V字的路径，那么我们就可以考虑通过遍历二叉树计算每个节点的深度，我们假定root.left的深度为n，right的深度为m，那么其路径长度就会是`m+n+2`，我们只需要在遍历的过程中拿一个数据进行数据保存即可。
+
+
+
+#### 题解
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int maxLength = 0;
+    public int diameterOfBinaryTree(TreeNode root) {
+        //可能穿过根节点 也可能不穿过
+        //但是我们可以证明其总是一个倒V字 也即
+        //一个root节点两边子树深度的加和
+        //设置全局变量存储max 即可
+        //遍历求深度
+        getDepth(root);
+        return maxLength;
+    }
+
+    int getDepth(TreeNode root){
+        //处理null
+        if(null == root) 
+            return -1;
+        //后序遍历
+        int left = getDepth(root.left);
+        int right = getDepth(root.right);
+        //计算当前节点的最大的直径
+        //注意要算上当前root节点加入的2
+        if(left+right+2 > maxLength) {
+            maxLength = left + right +2;
+        }
+        //向上返回depth
+        return (left>=right)?left+1:right+1;
+    }
+}
+```
+
+
+
+## 2021-3-16
+
+### [59. 螺旋矩阵 II](https://leetcode-cn.com/problems/spiral-matrix-ii/)
+
+给你一个正整数 `n` ，生成一个包含 `1` 到 `n2` 所有元素，且元素按顺时针顺序螺旋排列的 `n x n` 正方形矩阵 `matrix`。
+
+
+
+#### 思路
+
+模拟。通过一个方向数组控制方向，对一个数组进行赋值，注意不要走回到已经赋值过的位置即可。
+
+
+
+#### 题解
+
+```java
+class Solution {
+    public int[][] generateMatrix(int n) {
+        int [][] result = new int [n][n];
+        int flag = 0;
+        int i = 0,j = 0;
+        int [][] direction = {{0,1},{1,0},{0,-1},{-1,0}};
+        int num = 1;
+        int size = n*n;
+        while(num <= size){
+            result [i][j] = num;
+            int newi = i+direction[flag][0];
+            int newj = j+direction[flag][1];
+            //判断是否符合
+            if(newi<0||newi==n||newj<0||newj==n||result[newi][newj]!=0){
+                flag = (flag+1)%4;
+                newi = i+direction[flag][0]; 
+                newj = j+direction[flag][1];
+            }
+            i = newi;
+            j = newj;
+            num ++;
+        }
+        return result;
+    }
+}
+```
+
+
+
+
+
+### [208. 实现 Trie (前缀树)](https://leetcode-cn.com/problems/implement-trie-prefix-tree/)
+
+实现一个 Trie (前缀树)，包含 `insert`, `search`, 和 `startsWith` 这三个操作。
+
+
+
+#### 思路
+
+构建一棵树，通过书上的节点表示是不是一个字母并且保存他的下级。
+
+![image-20210316105410921](https://i.loli.net/2021/03/16/lVBiCOkapId9JAr.png)
+
+
+
+#### 题解
+
+```java
+class Trie {
+    class TireNode {
+        private boolean is_string;
+        TireNode[] next;
+
+        public TireNode() {
+            is_string = false;
+            next = new TireNode[26];
+        }
+    }
+
+    private TireNode root;
+    
+    /** Initialize your data structure here. */
+    public Trie() {
+        root = new TireNode();
+    }
+    
+    /** Inserts a word into the trie. */
+    public void insert(String word) {
+        int i;
+        int size = word.length();
+        TireNode node = root;
+        for(i=0; i<size; ++i){
+            if(node.next[word.charAt(i)-'a']==null){
+                //new
+                node.next[word.charAt(i)-'a'] = new TireNode();
+            }
+            node = node.next[word.charAt(i)-'a'];
+            
+        }
+        node.is_string = true;
+    }
+    
+    /** Returns if the word is in the trie. */
+    public boolean search(String word) {
+        int i;
+        int size = word.length();
+        TireNode node =root;
+        for(i=0; i<size; ++i){
+            if(node.next[word.charAt(i)-'a']==null){
+                //new
+                return false;
+            }
+            node = node.next[word.charAt(i)-'a'];
+        }
+        return node.is_string;
+    }
+    
+    /** Returns if there is any word in the trie that starts with the given prefix. */
+    public boolean startsWith(String prefix) {
+        int i;
+        int size = prefix.length();
+        TireNode node = root;
+        for(i=0; i<size; ++i){
+            if(node.next[prefix.charAt(i)-'a']==null){
+                return false;
+            }
+            else{
+                node = node.next[prefix.charAt(i)-'a'];
+            }
+        }
+        return true;
+    }
+}
+
+/**
+ * Your Trie object will be instantiated and called as such:
+ * Trie obj = new Trie();
+ * obj.insert(word);
+ * boolean param_2 = obj.search(word);
+ * boolean param_3 = obj.startsWith(prefix);
+ */
+```
 
