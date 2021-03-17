@@ -1,0 +1,5 @@
+- [数据结构与算法](file/cs/ds.md)
+- [C/C++](file/cs/c.md)
+- [计算机组成原理](file/cs/organization.md)
+- [编译原理](file/cs/pl.md)
+- [算法设计与分析](file/cs/algorithm.md)

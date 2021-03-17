@@ -18,3 +18,6 @@ https://github.com/AshinZ/algorithm
 
 
 
+### 其他
+
+个人公众号：`风雨CS路`。不定期更新中。
