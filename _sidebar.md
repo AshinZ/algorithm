@@ -2,4 +2,4 @@
 * [剑指Offer](file/offer.md)
 * [算法](file/algorithm/)
 * [读书](file/reading/)
-* [计算机基础整理](file/cs)
+* [计算机基础整理](file/cs/)
