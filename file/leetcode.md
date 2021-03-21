@@ -5644,3 +5644,304 @@ class Solution {
 }
 ````
 
+
+
+
+
+## 2021-3-21
+
+### [239. 滑动窗口最大值](https://leetcode-cn.com/problems/sliding-window-maximum/)
+
+给你一个整数数组 nums，有一个大小为 k 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 k 个数字。滑动窗口每次只向右移动一位。
+
+返回滑动窗口中的最大值。
+
+
+
+#### 思路
+
+考虑单调队列。先考虑一个窗口，如果我们维护一个单调栈的话，那么显然的，我们可以求得最小/最大值，这个数肯定会在这个单调栈的最底部。那么我们将其变成一个双端队列，当这个滑动窗口滑动的时候，如果最左边的数不在窗口里，我们就可以去掉，然后继续维护这个单调栈即可，这样我们就可以继续在底部得到最大/最小值。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        //单调队列
+        //所有的都会经历入队与出队
+        //维护一个单调递减的队列 这样队头就会是最大的那个
+        //注意窗口移动的时候要删除窗口外的内容
+        int size = nums.size();
+        deque <int> queue;//双端队列
+        for(int i=0;i<k;++i){
+            //初始化队列
+            while(!queue.empty() && nums[i]>nums[queue.back()]){
+                queue.pop_back();//弹出
+            }
+            //当前要加入的是最小的
+            queue.push_back(i);
+        }
+        //设置答案
+        vector<int> result={nums[queue.front()]};//加入当前窗口的最大值
+        int window_size = k;
+        while(k<size){
+            //下一个窗口
+            //移出不在窗口元素和加入元素可以交换位置 因为取最大最后才做
+            while(!queue.empty() && nums[k]>nums[queue.back()]){
+                queue.pop_back();//弹出
+            }
+            queue.push_back(k);
+            //显然 这个队列的index应该是递增的 所以左边的是最小的
+            if(window_size<=k-queue.front()){
+                //0 k k
+                queue.pop_front();
+            }
+            result.push_back(nums[queue.front()]);
+            k++;
+        }
+        return result;
+    }
+};
+```
+
+
+
+
+
+### [300. 最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)
+
+给你一个整数数组 nums ，找到其中最长严格递增子序列的长度。
+
+子序列是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。例如，[3,6,2,7] 是数组 [0,3,1,6,2,2,7] 的子序列。
+
+
+
+#### 思路
+
+经典dp。我们求n处的子序列长度，我们可以考虑n前面比n处小的元素的最长子序列，将该序列加1就成为了n处的可能长度，从这些可能长度中我们取出最大的那个即可。
+
+值得注意的是，并不是最后一个元素一定是最大的，所以需要维护一个最大值变量。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        //dp 假定dp[n]表示包含n的最长子序列的长度
+        //那么dp[n] = dp[k]+1 k是比n小的数字的序号
+        int size = nums.size();
+        int dp[size+1];
+        int max = 0;
+        dp[1] = 0;
+        for(int i = 2;i<=size;++i){
+            dp[i] = 0;
+            for(int j = 1;j<i;++j){
+                if(nums[j-1]<nums[i-1]&&dp[j]+1>dp[i]){
+                    //比他小
+                    dp[i] = dp[j]+1;
+                }
+            }
+            //更新最大值
+            if(dp[i]>max) max = dp[i];
+        }
+        return max+1;
+    }
+};
+```
+
+
+
+
+
+### [5. 最长回文子串](https://leetcode-cn.com/problems/longest-palindromic-substring/)
+
+给你一个字符串 `s`，找到 `s` 中最长的回文子串。
+
+
+
+#### 思路
+
+dp。如果aBa回文，那么B必定回文。基于这个就可以寻找递推关系。
+
+此外，可以考虑从最中间的某个节点往两边拓展，直到两边不一样为止。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        //dp
+        //如果一个字符串aBa是回文串 那么B也是回文串
+        int size = s.length();
+        if(size == 1) return s;
+        int dp [size][size]; //
+        int left = 0;
+        int right = 0;
+        //单个字符总是真的
+        for(int i=0;i<size;++i){
+            for(int j=0;j<size;++j){
+                dp[i][j] = 1;
+            }
+        }
+        //dp
+        for(int i=size-1;i>=0;--i){
+            for(int j=i+1;j<size;++j){
+                if(dp[i+1][j-1]==1 && s[i] == s[j]){
+                    dp[i][j] = 1;
+                    if(j-i > right-left) {
+                        right = j;
+                        left = i;
+                    }
+                }
+                else{
+                    dp[i][j] = 0;
+                }
+            }
+        }
+        return s.substr(left,right-left+1);
+    }
+};
+```
+
+
+
+
+
+### [15. 三数之和](https://leetcode-cn.com/problems/3sum/)
+
+给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？请你找出所有和为 0 且不重复的三元组。
+
+
+
+
+
+#### 思路
+
+三个数，简单的思路就是全部搜索，然后去重。
+
+考虑如下一个问题，如果我们确定一个数的值，那么问题就变成了是否存在两个数，使得除了确定数的加和为某个值，这样就很符合我们遇到过的两数之和的问题了。
+
+值得注意的一个问题是，在找数的时候，可能切换到下一个时和现在的是一样的，所以我们要注意略去一样的情况。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> result;
+        int size = nums.size();
+        if(size<3) return result;
+        //先排序
+        sort(nums.begin(),nums.end());
+        //固定一个数
+        for(int i = 0;i<size-1;++i){
+            //和上次一样就不考虑
+            //这里不能使用和下一个不一样 因为可能会有 -1 -1 2 这样的解答
+            if(i>0 && nums[i-1]==nums[i]){
+                continue;
+            }
+            //双指针
+            int j = i+1,k = size -1;
+            for(;j<k;++j){
+                //和上次一样
+                if(j>i+1 && nums[j-1]==nums[j]){
+                    continue;
+                }
+                //调整右指针
+                while(j<k&&nums[i] + nums[j] + nums[k] >0){
+                    k--;
+                }
+                //跳出
+                if(j>=k){
+                    break;
+                }
+                if(nums[i] + nums[j] + nums[k] == 0){
+                    //加入解
+                    vector <int> ans = {nums[i] , nums[j] , nums[k]};
+                    result.push_back(ans);
+                }
+            }
+        }
+        return result;
+    }
+};
+```
+
+
+
+
+
+### [98. 验证二叉搜索树](https://leetcode-cn.com/problems/validate-binary-search-tree/)
+
+给定一个二叉树，判断其是否是一个有效的二叉搜索树。
+
+
+
+#### 思路
+
+对BST做中序遍历，可以得到一个升序的列表。基于这个特征，进行中序遍历并判断。
+
+
+
+#### 题解
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isValidBST(TreeNode* root) {
+        if(root == nullptr) return false;
+        //中序遍历 
+        //验证是否上升
+        stack <TreeNode*> s;
+        TreeNode* lastOne = nullptr; //记录上一个数 
+        while(root!=nullptr || !s.empty()){
+            //向左
+            while(root != nullptr){
+                s.push(root);
+                root = root->left;
+            }
+            //中间
+            root = s.top();
+            s.pop();
+            //不是上升
+            if(lastOne != nullptr && lastOne->val>=root->val){
+                return false;
+            }
+            else{
+                lastOne = root;//初始化
+            }
+            //右边
+            root = root->right;
+        }
+        return true;
+    }
+};
+```
+
+
+
+
+
