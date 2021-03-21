@@ -5572,3 +5572,75 @@ class Trie {
  */
 ```
 
+
+
+
+
+## 2021-3-18
+
+### [92. 反转链表 II](https://leetcode-cn.com/problems/reverse-linked-list-ii/)
+
+给你单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表 
+
+
+
+
+
+#### 思路
+
+设置一个计数器，来记录我们遍历到了第几个节点。为了防止第一个节点就是left，所以我们要给链表头加一个，这样遇到第一个节点是left的情况，就可以进行翻转了。
+
+在翻转的时候，我们先对整个链表拆分成`A,B,C`三段，只有B段要做翻转，所以我们要把B插入到A的后面，然后把A接上去，基于这种思路，我们可以用两个指针保存下left和right的节点，因为他们必然是一头一尾，然后我们翻转B，接上去即可。
+
+
+
+#### 题解
+
+````java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode reverseBetween(ListNode head, int left, int right) {
+        if(left == right)  return head;//无须翻转
+        //先找到要反转的位置
+        ListNode p = new ListNode(0,head);//dummy
+        head = p;
+        int length = 1;
+        while(length != left){
+            p=p.next;
+            length++;
+        }
+        //此时p.next就是要反转的位置
+        ListNode pre = p;
+        //因为left!=right 所以必存在p.next.next
+        ListNode leftL = p.next; //记录左边节点
+        p = leftL.next;
+        //p从left的下一个开始 
+        while(length != right){
+            //假定A->b->c->d 要成为 A->c->b->d
+            ListNode temp = pre.next;
+            //A->c
+            pre.next = p;
+            //往下移动 
+            p = p.next;
+            //c->b
+            pre.next.next = temp;
+            length++;
+        }
+        //已经翻转结束
+        //连接翻转和未到达的节点
+        //连接B C
+        leftL.next = p;
+        return head.next;
+    }
+}
+````
+
