@@ -5943,5 +5943,316 @@ public:
 
 
 
+## 2021-3-22
+
+### [33. 搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/)
+
+整数数组 nums 按升序排列，数组中的值 互不相同 。
+
+在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 旋转，使数组变为 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。例如， [0,1,2,4,5,6,7] 在下标 3 处经旋转后可能变为 [4,5,6,7,0,1,2] 。
+
+给你 旋转后 的数组 nums 和一个整数 target ，如果 nums 中存在这个目标值 target ，则返回它的索引，否则返回 -1 。
+
+
+
+#### 思路
+
+整个列表虽然变成了两段升序，但是总体上我们仍然可以认为其是有序的，可以进行二分搜索。通过多个条件来进行分类，从而修改left和right的值即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+            //原来升序 变化以后是 
+            // a->b->c->d 其中ab升序 cd升序 且d小于a
+            //我们可以考虑一个循环队列 从里面找整个数据 二分法
+            int size = nums.size();
+            if(size == 0) return -1;
+            else if(size == 1) return (target==nums[0])?0:-1;
+            int left = 0,right = size - 1;
+            //注意跳出条件
+            while(left <= right){
+                //mid
+                int mid = (left+right)/2;
+                if(target == nums[mid]){
+                    return mid;
+                }
+                if(nums[mid]>=nums[0]){
+                    //注意控制新的left/right
+                    //target比mid大 要么是左边 要么就往右 我们可以通过nums[0]来确定
+                    //比较下确定如何切割
+                    if(target>=nums[0] && target<nums[mid]){
+                        right = mid - 1;
+                    }
+                    else {
+                        left = mid + 1;
+                    }
+                }
+                else{
+                    if(target>nums[mid] && target<=nums[size-1]){
+                        left = mid + 1;
+                    }
+                    else{
+                        right = mid -1;
+                    }
+                }
+            }
+            return -1;
+    }
+};
+```
+
+
+
+
+
+
+
+## 2021-3-23
+
+### [84. 柱状图中最大的矩形](https://leetcode-cn.com/problems/largest-rectangle-in-histogram/)
+
+给定 *n* 个非负整数，用来表示柱状图中各个柱子的高度。每个柱子彼此相邻，且宽度为 1 。
+
+求在该柱状图中，能够勾勒出来的矩形的最大面积。
+
+
+
+#### 思路
+
+我们从一个柱子的角度来看，如果这个柱子就是他所在的矩形里最小的那个，那么属于听他的最大面积就是他所能拓展的最长的长度*他的高度。所以我们要找上一个比他小的和下一个比他小的，这样我们就能找到这个柱子的最远边界从而来进行比较。
+
+而找上一个小的/下一个小的，比较合适的数据结构就是单调栈。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+        //单调栈
+        //找到某个柱子左边右边的最大拓展情况 
+        //这基于一个常识 如果所有的都比这个柱子大 那么再拓展一个也无所谓
+        int size = heights.size();
+        vector<int> left(size);
+        vector<int> right(size,size);
+        stack <int> S;
+        //求左边 找比他小的
+        for(int i=0;i<size;++i){
+            while(!S.empty() && heights[i]<=heights[S.top()]){
+                right[S.top()] = i;
+                S.pop();
+            }
+            left[i] = S.empty()?-1:S.top();
+            S.push(i);
+        }
+        //根据left和right 计算最大
+        int result = 0;
+        for(int i=0;i<size;++i){
+         //   cout<<"left:"<<left[i]<<"right:"<<right[i]<<endl;
+            int re = heights[i]*(right[i]-left[i]-1);
+            if(re>result){
+                result = re;
+            }
+        }
+        return result;
+    }
+};
+```
+
+
+
+
+
+### [912. 排序数组](https://leetcode-cn.com/problems/sort-an-array/)
+
+给你一个整数数组 `nums`，请你将该数组升序排列。
+
+
+
+#### 思路
+
+熟悉常见排序算法。
+
+
+
+#### 题解 快排
+
+```c++
+class Solution {
+public:
+    vector<int> sortArray(vector<int>& nums) {
+        int size = nums.size();
+        pos(nums,0,size-1);
+        return nums;
+    }
+    
+    void pos(vector<int>& nums,int left,int right){
+        if(right<=left) return ;
+        int l = left, r = right;
+        int x = nums[l];//取出l处的数据等待填补
+        while(l<r){
+            //右边往左边看
+            while(l<r && nums[r]>x){
+                r--;
+            }
+            if(l<r){
+                nums[l] = nums[r];
+                l++;
+            }
+            //左边往右边看
+            while(l<r && nums[l]<x){
+                l++;
+            }
+            if(l<r){
+                nums[r] = nums[l];
+                r--;
+            }
+        }
+        //相等的时候弹出
+        nums[l] = x;
+
+        pos(nums,left,l-1);
+        pos(nums,l+1,right);
+    }
+};
+```
+
+
+
+#### 题解 堆排
+
+
+
+
+
+
+
+
+
+### [678. 有效的括号字符串](https://leetcode-cn.com/problems/valid-parenthesis-string/)
+
+给定一个只包含三种字符的字符串：（ ，） 和 *，写一个函数来检验这个字符串是否为有效字符串。有效字符串具有如下规则：
+
+任何左括号 ( 必须有相应的右括号 )。
+任何右括号 ) 必须有相应的左括号 ( 。
+左括号 ( 必须在对应的右括号之前 )。
+
+\* 可以被视为单个右括号 ) ，或单个左括号 ( ，或一个空字符串。
+  一个空字符串也被视为有效字符串
+
+
+
+
+
+#### 思路
+
+考虑这样一个问题，因为\*可以成为左括号也可以成为右括号，如果我们去遍历各种情况显然是不合理的。我们可以考虑一个区间，这个区间记录了左括号的最后范围。我们假定当前的范围为[l,r]，那么遇到左括号的时候，这个范围就会变成[l+1,r+1]，遇到右括号的时候，由于被匹配掉了一个左括号，所以两个都要减，值得注意的是，这里r并不能小于0，这取决于这样的一个思路：如果r小于0，那么说明在个字符串里，左括号的最大值都不够右括号匹配的，那么后面的全部都变得没有意义了。值得注意的是，l并不能等于或小于0，这是因为l表示的是最少的情况，但是因为*号的存在，他可以取空也可以取其他的，这可以自由决定。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    bool checkValidString(string s) {
+        //*可以看成是任意一个字符
+        //那么匹配完后 括号数量应该是一个区间
+        //看看这个区间是不是能取到0
+        int size = s.length();
+        int left = 0, right = 0;
+        for(int i=0 ;i < size ; ++i){
+            if(s[i] == '('){
+                left ++;
+                right ++;
+            }
+            else if(s[i]==')'){
+                //右括号
+                if(left>0){ //匹配掉一个左括号
+                    left --;
+                }
+                right --;
+            }
+            else if(s[i]=='*'){
+                //*号
+                if(left>0){ //可以匹配掉一个左括号
+                    left --;
+                }  
+                right ++; //也可以变成一个左括号
+            }
+                    //如果不够匹配 显然不适合
+        if(right < 0)
+            return false;
+        }
+        //看看是否能全部匹配掉
+        return left == 0;
+    }
+};
+```
+
+
+
+### [61. 旋转链表](https://leetcode-cn.com/problems/rotate-list/)
+
+给定一个链表，旋转链表，将链表每个节点向右移动 *k* 个位置，其中 *k* 是非负数。
+
+
+
+#### 思路
+
+原来想着找到断开的位置然后接一下就行，但是发现k的值可能超出链表长度，比较麻烦，于是尝试把他合成一个环，然后找到相关的位置即可。
+
+
+
+#### 题解
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* rotateRight(ListNode* head, int k) {
+        //先闭合成环
+        //在切割
+        //为了切割方便 我们可以用多个指针记录
+        if(head == nullptr || head->next ==nullptr) return head;
+        ListNode *now = head->next; //当前指针
+        ListNode *pre = head;
+        int length = 1;
+        while(now!=nullptr){
+            now = now->next;
+            pre = pre->next;
+            length ++;
+        }
+        pre->next = head;
+        //已成环 开始拆
+        for(int i=0;i<length-(k)%length;++i){
+            //找到断开的那个点
+            pre = pre->next;
+        }
+        now = pre->next;
+        pre->next = nullptr;
+        return now;
+    }
+};
+```
+
+
+
 
 
