@@ -6256,3 +6256,238 @@ public:
 
 
 
+## 2021-3-25
+
+### [82. 删除排序链表中的重复元素 II](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list-ii/)
+
+存在一个按升序排列的链表，给你这个链表的头节点 head ，请你删除链表中所有存在数字重复情况的节点，只保留原始链表中 没有重复出现 的数字。
+
+返回同样按升序排列的结果链表。
+
+
+
+#### 思路
+
+通过一个变量来判断是否出现了一致的，出现一致的则把这一段全部删去，否则就保留。注意第一个也可能被删去，所以需要加一个`dummy`。
+
+
+
+#### 题解
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* deleteDuplicates(ListNode* head) {
+        if(head == nullptr) return head;
+        ListNode * dummy = new ListNode(0,head);
+        ListNode * now = dummy; //遍历
+        while(now!=nullptr){
+            ListNode * next = now -> next;
+            int flag = 0;
+            while(next != nullptr && next->next!=nullptr && next->val == next->next->val){
+                //相等 下跳一个
+                next = next->next;
+                flag = 1;
+            }
+            if(flag == 1){
+                now -> next = next -> next;
+            }
+            else
+                now = now -> next;
+        }
+        return  dummy->next;
+    }
+};
+```
+
+
+
+
+
+## 2021-3-26
+
+### [面试题 16.17. 连续数列](https://leetcode-cn.com/problems/contiguous-sequence-lcci/)
+
+给定一个整数数组，找出总和最大的连续数列，并返回总和。
+
+
+
+#### 思路
+
+对于某个数，他此时的最大值有两种情况，加入他前面的，或者从自己开始，所以我们比较这两个值，然后在进行 判断即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int size = nums.size();
+        int sum = 0; //上一个的和
+        int Max = nums[0]; //当前和
+        for(int i=0;i<size;++i){
+            sum = max(nums[i],sum+nums[i]);
+            Max = max(Max,sum);
+        }
+        return Max;
+    }
+};
+```
+
+
+
+
+
+### 2021-3-29
+
+### [190. 颠倒二进制位](https://leetcode-cn.com/problems/reverse-bits/)
+
+颠倒给定的 32 **位无符号整数的二进制位**。
+
+
+
+#### 思路
+
+分治法。一种非常酷炫得位运算解法，没见过确实不太容易想到。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+    const uint32_t M1 = 0x55555555; // 01010101010101010101010101010101
+    const uint32_t M2 = 0x33333333; // 00110011001100110011001100110011
+    const uint32_t M4 = 0x0f0f0f0f; // 00001111000011110000111100001111
+    const uint32_t M8 = 0x00ff00ff; // 00000000111111110000000011111111
+
+public:
+    uint32_t reverseBits(uint32_t n) {
+        n = n >> 1 & M1 | (n & M1) << 1;
+        n = n >> 2 & M2 | (n & M2) << 2;
+        n = n >> 4 & M4 | (n & M4) << 4;
+        n = n >> 8 & M8 | (n & M8) << 8;
+        return n >> 16 | n << 16;
+    }
+};
+```
+
+
+
+### [面试题 08.01. 三步问题](https://leetcode-cn.com/problems/three-steps-problem-lcci/)
+
+三步问题。有个小孩正在上楼梯，楼梯有n阶台阶，小孩一次可以上1阶、2阶或3阶。实现一种方法，计算小孩有多少种上楼梯的方式。结果可能很大，你需要对结果模1000000007
+
+
+
+#### 思路
+
+设置三个变量，分别保存前面三步的情况。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int waysToStep(int n) {
+        if(n <= 2) return n;
+        else if(n == 3) return 4;
+        long long n1=1,n2=2,n3=4;
+        for(int i=3;i<n;++i){
+            long long x = n1 + n2 + n3;
+            n1 = n2%1000000007;
+            n2 = n3%1000000007;
+            n3 = x%1000000007;
+        }
+        return n3;
+    }
+};
+```
+
+
+
+### [392. 判断子序列](https://leetcode-cn.com/problems/is-subsequence/)
+
+给定字符串 s 和 t ，判断 s 是否为 t 的子序列。
+
+字符串的一个子序列是原始字符串删除一些（也可以不删除）字符而不改变剩余字符相对位置形成的新字符串。（例如，"ace"是"abcde"的一个子序列，而"aec"不是）。
+
+
+
+#### 思路
+
+直接遍历t，看看是否能够在其中顺序找到s的所有字符即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    bool isSubsequence(string s, string t) {
+        if(s.length() == 0) return true;
+        int size = t.length();
+        int j = 0;
+        for(int i=0;i<size;++i){
+            if(t[i] == s[j]){
+                j++;
+                if(j == s.length()){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+};
+```
+
+
+
+
+
+### [1641. 统计字典序元音字符串的数目](https://leetcode-cn.com/problems/count-sorted-vowel-strings/)
+
+给你一个整数 n，请返回长度为 n 、仅由元音 (a, e, i, o, u) 组成且按 字典序排列 的字符串数量。
+
+字符串 s 按 字典序排列 需要满足：对于所有有效的 i，s[i] 在字母表中的位置总是与 s[i+1] 相同或在 s[i+1] 之前。
+
+
+
+#### 思路
+
+考虑n和n+1的关系，n+1比n多了个数，可以把这个数放到开头，然后考虑开头和这个n串的关系即可。比如前面是a，那么后面只能跟aeiou，以此类推。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int countVowelStrings(int n) {
+        vector<int> dp(5,1);// a e i o u
+        for(int i=2;i<=n;++i){
+            for(int j = 3;j>=0; --j){
+                dp[j]+=dp[j+1];
+            }
+        }
+        return accumulate(dp.begin(),dp.end(),0);
+    }
+};
+```
+

@@ -585,3 +585,40 @@ class CQueue {
  */
 ```
 
+
+
+
+
+## 2021-3-25
+
+### [剑指 Offer 10- I. 斐波那契数列](https://leetcode-cn.com/problems/fei-bo-na-qi-shu-lie-lcof/)
+
+写一个函数，输入 `n` ，求斐波那契（Fibonacci）数列的第 `n` 项（即 `F(N)`）。
+
+
+
+#### 思路
+
+一开始想着用地址存，但是想一下我们会意识到这个不需要存下前面的所有结果，所以只需要存前两个即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int fib(int n) {
+        if(n == 0) return 0;
+        int f1 = 0;
+        int f2 = 1;
+        for(int i=2;i<=n;++i){
+            int temp = f1;
+            f1 = f2;
+            f2 = (temp+f2)%1000000007;
+        }
+        return f2;
+    }
+};
+```
+
