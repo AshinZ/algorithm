@@ -6491,3 +6491,180 @@ public:
 };
 ```
 
+
+
+
+
+### 2021-3-30
+
+#### [74. 搜索二维矩阵](https://leetcode-cn.com/problems/search-a-2d-matrix/)
+
+编写一个高效的算法来判断 m x n 矩阵中，是否存在一个目标值。该矩阵具有如下特性：
+
+每行中的整数从左到右按升序排列。
+每行的第一个整数大于前一行的最后一个整数
+
+
+
+
+
+#### 思路
+
+先对块做二分，在对这个块做二分。
+
+思路二，也可以把这个图形看成是从右上角开始的一棵二叉搜索树。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        //先对块做分析
+        int size = matrix.size();
+        int left = 0,right = size-1;
+        int mid;
+        //二分找在哪个块里
+        while(left<=right){
+            mid = left + (right-left)/2;//二分
+            if(matrix[mid][0]>target){
+                right = mid - 1;
+            }
+            else if(matrix[mid][matrix[mid].size()-1]<target){
+                left = mid +1 ;
+            }
+            else{
+                break;
+            }
+        }
+        left = 0;
+        right = matrix[mid].size()-1;
+        while(left<=right){
+            int middle = left + (right - left)/2;
+            if(matrix[mid][middle] == target){
+                return true;
+            }
+            else if(matrix[mid][middle] > target){
+                //大于
+                right = middle -1;
+            }
+            else{
+                left = middle +1;
+            }
+        }
+        return false;
+    }
+};
+```
+
+
+
+
+
+### [347. 前 K 个高频元素](https://leetcode-cn.com/problems/top-k-frequent-elements/)
+
+给定一个非空的整数数组，返回其中出现频率前k高的元素。
+
+
+
+#### 思路
+
+统计出现频率，做堆排。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    static bool cmp(pair<int, int>& m, pair<int, int>& n) {
+        return m.second > n.second;
+    }
+
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        unordered_map<int, int> occurrences;
+        for (auto& v : nums) {
+            occurrences[v]++;
+        }
+
+        priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(&cmp)> q(cmp);
+        for (auto& [num, count] : occurrences) {
+            if (q.size() == k) {
+                if (q.top().second < count) {
+                    q.pop();
+                    q.emplace(num, count);
+                }
+            } else {
+                q.emplace(num, count);
+            }
+        }
+        vector<int> ret;
+        while (!q.empty()) {
+            ret.emplace_back(q.top().first);
+            q.pop();
+        }
+        return ret;
+    }
+};
+```
+
+
+
+### [322. 零钱兑换](https://leetcode-cn.com/problems/coin-change/)
+
+给定不同面额的硬币 coins 和一个总金额 amount。编写一个函数来计算可以凑成总金额所需的最少的硬币个数。如果没有任何一种硬币组合能组成总金额，返回 -1。
+
+你可以认为每种硬币的数量是无限的
+
+
+
+
+
+#### 思路
+
+经典dp。转移方程f[n] = min{f[n-k] +1}，其中k是硬币币值。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        if(amount==0) return 0;
+        //经典dp
+        //用dp[n]表示凑到n个硬币最少的钱
+        vector<int> dp(amount +1,0);
+        int size = coins.size();
+        int flag = 0;
+        for(int i=0;i<size;++i){
+            if(coins[i]<=amount){
+                flag = 1;
+                dp[coins[i]] = 1;//设置初值
+            }
+        }
+        if(flag == 0) return -1;//全都比amount大 
+        for(int i = 1;i <= amount ;++i){
+            //面值 跳过
+            if(dp[i] == 1) continue;
+            int min = 99999;
+            for(int j=0;j<size;++j){
+                int d = i - coins[j];
+                if(d>0){
+                    //能够用这个硬币来换
+                    if(dp[d]+1<min){
+                        min = dp[d] +1;
+                    }
+                }
+            }
+            dp[i] = min;
+        }
+        return (dp[amount] == 99999)?-1:dp[amount];
+    }
+};
+```
+
