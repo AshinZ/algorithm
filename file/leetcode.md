@@ -6668,3 +6668,269 @@ public:
 };
 ```
 
+
+
+
+
+## 2021-3-31
+
+### [90. 子集 II](https://leetcode-cn.com/problems/subsets-ii/)
+
+给你一个整数数组 nums ，其中可能包含重复元素，请你返回该数组所有可能的子集（幂集）。
+
+解集 不能 包含重复的子集。返回的解集中，子集可以按 任意顺序 排列。
+
+
+
+#### 思路
+
+考虑一个二进制数，这个数的每一位都可以表示这个数组中的某个数在不在这里面，我们可以用这个去生成全部的子集，再使用set去去重，但是考虑到顺序问题，我们可以先对其做一次排序。
+
+在去重这里，我们可以考虑如下优化，例如`[1,1,2]`这样的一个串，如果第一个1未被加入，而第二个1可以被加入的时候，我们会发现这种情况在前面的遍历中已经产生了，所以我们需要考虑退出，这样就不需要用set了。
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        //通过二进制表示哪个在哪个不在来生成结果
+        int size = nums.size();
+        sort(nums.begin(),nums.end());
+        int n = 1<<size; //2^n次方
+        vector<vector<int>> result;
+        set<vector<int>> s;//去重
+        for(int i =0; i < n; ++i){
+            vector<int> ans;
+            int k = i;
+            int pos = 0;
+            while(k!=0){
+                if(k & 1 == 1){
+                    //只有1才是1
+                    ans.push_back(nums[pos]);
+                }
+                pos++;
+                k = k>>1;
+            }
+            if(!s.count(ans)){
+                //出现过
+                result.push_back(ans);
+                s.insert(ans);
+            }
+        }
+        return result;
+    }
+};
+```
+
+
+
+#### 题解二
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        //通过二进制表示哪个在哪个不在来生成结果
+        int size = nums.size();
+        sort(nums.begin(),nums.end());
+        int n = 1<<size; //2^n次方
+        vector<vector<int>> result;
+        for(int i =0; i < n; ++i){
+            vector<int> ans;
+            int k = i;
+            int pos = 0;
+            int last = 0;//标明上一个选没选
+            int flag = 1;
+            while(k!=0){
+                if(k & 1 == 1){
+                    if(pos>0 && last == 0 && nums[pos-1] == nums[pos]){
+                    //上一个一样的数没放进来 那么就会重复
+                        flag = 0;
+                        last = 0;
+                        break;
+                    }
+                    ans.push_back(nums[pos]);
+                    last = 1;
+                }
+                else{
+                    last = 0;
+                }
+                pos++;
+                k = k>>1;
+            }
+            if(flag==1){
+                //出现过
+                result.push_back(ans);
+            }
+        }
+        return result;
+    }
+};
+```
+
+
+
+
+
+### [523. 连续的子数组和](https://leetcode-cn.com/problems/continuous-subarray-sum/)
+
+给定一个包含 非负数 的数组和一个目标 整数 k ，编写一个函数来判断该数组是否含有连续的子数组，其大小至少为 2，且总和为 k 的倍数，即总和为 n * k ，其中 n 也是一个整数.
+
+
+
+#### 思路
+
+前缀和。计算每个的前缀和，然后做差，看看两个之间的差值是否是k的倍数。
+
+基于这样的想法，我们可以对这个前缀和数组每一个位置取模k，如果有两个位置为一样的或者有一个为0，就说明存在这样的子数组。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    bool checkSubarraySum(vector<int>& nums, int k) {
+        //前缀和
+        int size = nums.size();
+        if(size == 1) return false;
+        vector<int> sum(size,0);
+        sum[0] = nums[0];
+        map<int,int> s;//存储mod后数值
+        s.insert(make_pair(0,-1));
+        //这样得到了一个前缀和数组
+        for(int i=1;i<size;++i){
+            sum[i] = sum[i-1] + nums[i];
+        }
+        //现在我们去找是否有一样的两个数
+        for(int i=0;i<size;++i){
+            if(s.count(sum[i]%k)){
+                if(i-(s.find(sum[i]%k))->second>1){
+                ///存在一样的或者模是0
+                return true;
+                }
+            }
+            else{
+                s.insert(make_pair(sum[i]%k,i));
+            }
+        }
+        return false;
+    }
+};
+```
+
+
+
+### [142. 环形链表 II](https://leetcode-cn.com/problems/linked-list-cycle-ii/)
+
+给定一个链表，返回链表开始入环的第一个节点。 如果链表无环，则返回 null。
+
+为了表示给定链表中的环，我们使用整数 pos 来表示链表尾连接到链表中的位置（索引从 0 开始）。 如果 pos 是 -1，则在该链表中没有环。注意，pos 仅仅是用于标识环的情况，并不会作为参数传递到函数中
+
+
+
+#### 思路
+
+快慢指针。当慢指针到达入环第一个节点的时候，假设快指针已经走了k的距离，那么快指针到达慢指针要走过n-k的距离，其中n是环的长度，因为每次多走一步，而距离是n-k。那么当两者相遇的时候，慢指针其实走了n-k，而k其实就是到达环的长度，所以我们在设置一个指针从头出发，走k步，这样就恰好会遇到慢指针，这样就找到了慢指针。
+
+
+
+#### 题解
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *detectCycle(ListNode *head) {
+        if(head == nullptr) return nullptr;
+        ListNode *slow = head,*fast = head;
+        while(fast->next!=nullptr && fast->next->next != nullptr){
+            fast = fast ->next->next;
+            slow = slow ->next;
+            if(fast == nullptr) return nullptr;
+        }
+        //已经相遇
+        ListNode *now = head;
+        while(now != slow){
+            now = now->next;
+            slow = slow->next;
+        }
+        return  now;
+    }
+};
+```
+
+
+
+
+
+## 2021-4-1
+
+### [31. 下一个排列](https://leetcode-cn.com/problems/next-permutation/)
+
+实现获取 下一个排列 的函数，算法需要将给定数字序列重新排列成字典序中下一个更大的排列。
+
+如果不存在下一个更大的排列，则将数字重新排列成最小的排列（即升序排列）。
+
+必须 原地 修改，只允许使用额外常数空间
+
+
+
+
+
+#### 思路
+
+我们需要考虑全排列生成过程，假设有`[1,2,4,3]`，我们会发现，变得肯定是24中的2，因为全排列是顺序变成逆序的过程，所以我们可以确定2是要换的数，然后我们去后面找比他更大的那个，交换这两个，然后对他后面进行排序即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        // 123 132 213 231 312 321
+        int size = nums.size();
+        int i = size-2;
+        for(;i>=0;--i){
+            if(nums[i+1] > nums[i]){
+                break;
+            }
+        }
+        if(i== -1){
+            //找不到
+            sort(nums.begin(),nums.end());
+            return ;
+        }
+        //找到i
+        int j = i +1;
+        int min = i+1;
+        for(; j < size;++j){
+            if(nums[j]>nums[i] && nums[j] < nums[min]){
+                min = j;
+            }
+        }
+        //swap i & min
+        int temp = nums[i];
+        nums[i] = nums[min];
+        nums[min] = temp;
+        //sort后面的
+        sort(nums.begin()+i+1,nums.begin()+size);
+    }
+};
+```
+
+
+
+
+
