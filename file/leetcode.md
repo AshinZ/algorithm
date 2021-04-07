@@ -6934,3 +6934,660 @@ public:
 
 
 
+## 2021-4-3
+
+### [1143. 最长公共子序列](https://leetcode-cn.com/problems/longest-common-subsequence/)
+
+给定两个字符串 text1 和 text2，返回这两个字符串的最长 公共子序列 的长度。如果不存在 公共子序列 ，返回 0 。
+
+一个字符串的 子序列 是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。
+
+
+
+#### 思路
+
+经典dp。重点在于寻找转移方程，显然，当两个字符一样的时候，应该是这两个字符都不在的时候的数值的加一，而不一样的时候，则是不在的时候匹配的最大值。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int longestCommonSubsequence(string text1, string text2) {
+        int length1 = text1.length();//横
+        int length2 = text2.length();//纵
+        int dp[length2 + 1][length1 + 1];
+        //init
+        for(int i = 0;i<=length1 ; ++i){
+            dp[0][i] = 0;
+        }
+        for(int i = 0 ;i <= length2 ; ++i){
+            dp[i][0] = 0;
+        }
+        //开始dp
+        for(int i = 1; i <= length2 ;++i){
+            for(int j = 1; j <= length1 ;++j){
+                if(text1[j-1] == text2[i-1]){
+                    dp[i][j] = dp[i-1][j-1] +1;
+                }
+                else{
+                    dp[i][j] = max(dp[i][j-1],dp[i-1][j]);
+                }
+            }
+        }
+        return dp[length2][length1];
+    }
+};
+```
+
+
+
+
+
+### [面试题 17.21. 直方图的水量(\*)](https://leetcode-cn.com/problems/volume-of-histogram-lcci/)
+
+给定一个直方图(也称柱状图)，假设有人从上面源源不断地倒水，最后直方图能存多少水量?直方图的宽度为 1。
+
+
+
+#### 思路
+
+如果我们单看一个柱子，那么他能存的水，就是他两侧的最大值的小的那个减去他的高度，这就是一种思路，但是这样的话，我们并不能很简单的求出来。
+
+所以就有了第一种解法，直接求最大值；但是这样复杂度比较高，我们会发现其中有很多次重复计算，所以我们可以通过预处理的方式来先求最大值。
+
+接着我们考虑一个区间内，我们找到这个区间的左右最大值，就可以计算中间能加的水了。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int ans = 0;
+        stack<int> stk;
+        int n = height.size();
+        for (int i = 0; i < n; ++i) {
+            while (!stk.empty() && height[i] > height[stk.top()]) {
+                int top = stk.top();
+                stk.pop();
+                if (stk.empty()) {
+                    
+                    break;
+                }
+                int left = stk.top();
+                int currWidth = i - left - 1;
+                int currHeight = min(height[left], height[i]) - height[top];
+                ans += currWidth * currHeight;
+            }
+            stk.push(i);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+
+
+### [237. 删除链表中的节点](https://leetcode-cn.com/problems/delete-node-in-a-linked-list/)
+
+请编写一个函数，使其可以删除某个链表中给定的（非末尾）节点。传入函数的唯一参数为 **要被删除的节点** .
+
+
+
+#### 思路
+
+一开始看感觉没有head，后来意识到应该是一个小的功能函数，所以考虑将这个节点变成下个节点即可。
+
+
+
+#### 题解
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    void deleteNode(ListNode* node) {
+        if(node->next == nullptr){
+            //下一个为空
+            node = nullptr;
+        }
+        node->val = node->next->val;
+        node->next = node->next->next;
+    }
+};
+```
+
+
+
+
+
+## 2021-4-5
+
+### [79. 单词搜索](https://leetcode-cn.com/problems/word-search/)
+
+给定一个二维网格和一个单词，找出该单词是否存在于网格中。
+
+单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+
+
+
+
+
+#### 思路
+
+DFS搜索即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    bool dfs(vector<vector<bool>>& visit,vector<vector<char>>& board,string& word,int k,int x,int y)    {
+        if(board[x][y] != word[k]){
+            return false;
+        }
+        //进来一定是符合要求的
+        if(k == word.length()-1){
+            return true;
+        }
+        visit[x][y] =true;
+        //接下来考虑他的周围
+        bool result = false;
+        vector<pair<int,int>> dict = {{0,1},{0,-1},{1,0},{-1,0}};
+        for(auto& dir: dict){
+            int newX = x + dir.first;
+            int newY = y + dir.second;
+            if(newX>=0&&newX<board.size()&&newY>=0&&newY<board[0].size()){
+                //符合边界要求
+                if(visit[newX][newY]==false && board[newX][newY]==word[k+1]){
+                    //符合要求
+                    //dfs
+                    bool flag = dfs(visit,board,word,k+1,newX,newY);
+                    if(flag){
+                        result = true;
+                        break;
+                    }
+                }
+            }
+        }
+        visit[x][y] = false;
+        return result;
+    }
+
+    bool exist(vector<vector<char>>& board, string word) {
+        //dfs
+        //需要一个visit数组
+        int x = board.size();
+        int y = board[0].size();
+        vector<vector<bool> > visit(x,vector<bool>(y,false));
+        for(int i=0;i<x;++i){
+            for(int j=0;j<y;++j){
+                //不是就直接跳过
+                if(board[i][j] != word[0]){
+                    continue;
+                }
+                bool flag = dfs(visit,board,word,0,i,j);
+                if(flag){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+};
+```
+
+
+
+
+
+
+
+## 2021-4-6
+
+### [80. 删除有序数组中的重复项 II](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array-ii/)
+
+给你一个有序数组 nums ，请你 原地 删除重复出现的元素，使每个元素 最多出现两次 ，返回删除后数组的新长度。
+
+不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。
+
+
+
+#### 思路
+
+直接一遍遍历，用一个index指针表示已经加入数组的数，然后找少于3的情况即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int removeDuplicates(vector<int>& nums) {
+        //有序数组 直接从前往后找就行
+        //最多出现两次
+        int size = nums.size();
+        int index = 1;
+        int old = nums[0];
+        int number =1;
+        for(int i=1;i<size;++i){
+            if(nums[i] != old){
+                number = 1;
+                old = nums[i];
+                nums[index] = old;
+                index++;
+            }
+            else{
+                number++;
+                if(number<3){
+                    old = nums[i];
+                    nums[index] = old;
+                    index++;
+                }
+            }
+        }
+        return index;
+    }
+};
+```
+
+
+
+
+
+### [LCP 28. 采购方案](https://leetcode-cn.com/problems/4xy4Wx/)
+
+小力将 N 个零件的报价存于数组 nums。小力预算为 target，假定小力仅购买两个零件，要求购买零件的花费不超过预算，请问他有多少种采购方案。
+
+注意：答案需要以 1e9 + 7 (1000000007) 为底取模，如：计算初始结果为：1000000008，请返回 1
+
+
+
+
+
+#### 思路
+
+显然暴力不行，想到两数之和的想法，我们可以先排序，然后左边一个指针右边一个指针，当两者加起来小于target时，从左到右的所有数就都符合要求了。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int purchasePlans(vector<int>& nums, int target) {
+        int size = nums.size();
+        int sum = 0;
+        int left = 0,right = size-1;
+        sort(nums.begin(),nums.end());
+        while(left<right){
+            if(nums[left] + nums[right] > target){
+                right --;
+            }
+            //此时相等
+            else{
+                sum = (sum + right-left)%1000000007;
+                left++;
+            }
+        }
+        return sum;
+    }
+};
+```
+
+
+
+
+
+### [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
+
+给定一个仅包含数字 2-9 的字符串，返回所有它能表示的字母组合。答案可以按 任意顺序 返回。
+
+给出数字到字母的映射如下（与电话按键相同）。注意 1 不对应任何字母。
+
+
+
+
+
+#### 思路
+
+DFS搜索+回溯，按位搜索，用map记录对应的字母。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    vector<string> result;
+    unordered_map<int, string> phoneMap{
+            {'2', "abc"},
+            {'3', "def"},
+            {'4', "ghi"},
+            {'5', "jkl"},
+            {'6', "mno"},
+            {'7', "pqrs"},
+            {'8', "tuv"},
+            {'9', "wxyz"}
+        };
+
+    vector<string> letterCombinations(string digits) {
+        int size = digits.length();
+        string ans= "";
+        if(size != 0)
+            dfs(ans,digits,0);
+        return result;
+    }
+
+    void dfs(string &ans,string& digits,int k){
+        //搜到头了
+        if(k == digits.length()){
+            result.push_back(ans);
+            return ;
+        }
+        //没搜到头
+        //当前正在找k处
+        const string& letters = phoneMap.at(digits[k]);
+        for(const auto& letter:letters){
+            ans.push_back(letter);
+            dfs(ans,digits,k+1);
+            ans.pop_back();
+        }
+    }
+};
+```
+
+
+
+### [34. 在排序数组中查找元素的第一个和最后一个位置](https://leetcode-cn.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
+
+给定一个按照升序排列的整数数组 nums，和一个目标值 target。找出给定目标值在数组中的开始位置和结束位置。
+
+如果数组中不存在目标值 target，返回 [-1, -1]。
+
+
+
+
+
+#### 思路
+
+要找到一种`logn`的解法的话，第一反应就是二分。但是我们的二分往往用来找的是某一个特定的数，我们不妨换一下思路，向左找这个数，向右找比他大的第一个，这样我们就能复用同一个代码了。
+
+在这里值得注意的是，感觉二分可以通过什么时候向左和什么时候向右来划分，不是先写条件在写左右。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    vector<int> searchRange(vector<int>& nums, int target) {
+        //二分
+        //考虑target在mid两边怎么处理
+        //直接二分 一个找小 一个找大
+        int left = search(nums,target,1); //找小
+        int right = search(nums,target,0)-1; //找大
+
+        if(left<=nums.size()&&right<nums.size()&&nums[right] == target&&nums[left]==target&&left<=right){
+            return vector<int> {left,right};
+        }
+        return vector<int>{-1,-1};
+    }
+
+    int search(vector<int>& nums,int target,int low){
+        int ans = nums.size();
+        int left = 0,right = nums.size()-1;
+        while(left<=right){
+            int mid = left + (right-left)/2;
+            if(nums[mid]>target || (low && nums[mid] == target)){
+                //向左找
+                //在两种情况 一个是目标值在左边 一个是已经找到了 但是要找最左
+                right = mid-1;
+                ans = mid;
+            }
+            else {
+                left = mid +1;
+            }
+        }
+        return ans;
+    }
+};
+```
+
+
+
+
+
+
+
+### [55. 跳跃游戏](https://leetcode-cn.com/problems/jump-game/)
+
+给定一个非负整数数组 `nums` ，你最初位于数组的 **第一个下标** 。
+
+数组中的每个元素代表你在该位置可以跳跃的最大长度。
+
+判断你是否能够到达最后一个下标。
+
+
+
+#### 思路
+
+一开始想的用一个dp数组记录能否到达，每次计算，但是超时。
+
+后来考虑了下，只需要记录能到达的最远即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int size = nums.size();
+        int max = 0; //最远下标
+        for(int i=0;i<size;++i){
+            if(i<=max){
+                //这个可以到达
+                if(nums[i]+i>max){
+                    max = nums[i]+i;
+                }
+            }
+            //是否符合要求
+            if(max>=size-1)
+                return true;
+        }
+        return false;
+    }
+};
+```
+
+
+
+
+
+### [56. 合并区间](https://leetcode-cn.com/problems/merge-intervals/)
+
+以数组 intervals 表示若干个区间的集合，其中单个区间为 intervals[i] = [starti, endi] 。请你合并所有重叠的区间，并返回一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间
+
+
+
+#### 思路
+
+一上来看感觉是个混乱的问题，我们考虑以人的思路来模拟一下。如果我们遇到这种情况，我们肯定从左边开始处理，那么面对两个区间，如果他们有交集的话，我们就合并，没有交集就不合并。那么这样我们会遇到一个问题，也即两个可能交集的被中间某个区间隔开了，所以我们考虑对这个区间进行排序。当排序后，我们可以证明，如果两个区间没有交集，那么其前面的和后面的就真的是完全没有交集，这样就能快速的一遍遍历求出结果。
+
+
+
+
+
+#### 题解
+
+```c++
+class Solution {
+
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        //排序
+        //如果两个区间不能合并 说明左边的最大和右边最小已经无关了
+        sort(intervals.begin(),intervals.end());
+        vector<vector<int>> result;
+        int size = intervals.size();
+        result.push_back(vector<int>{intervals[0][0],intervals[0][1]});
+        for(int i=1;i<size;++i){
+            int L = intervals[i][0],R = intervals[i][1];
+            //不可以合并 
+            if(L>result.back()[1]){
+                result.push_back(vector<int>{L,R});
+            }
+            else{
+                result.back()[1] = max(result.back()[1],R);
+            }
+        }
+        return result;
+    }
+};
+```
+
+
+
+
+
+## 2021-4-7
+
+### [81. 搜索旋转排序数组 II](https://leetcode-cn.com/problems/search-in-rotated-sorted-array-ii/)
+
+已知存在一个按非降序排列的整数数组 nums ，数组中的值不必互不相同。
+
+在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 旋转 ，使数组变为 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。例如， [0,1,2,4,4,4,5,6,6,7] 在下标 5 处经旋转后可能变为 [4,5,6,6,7,0,1,2,4,4] 。
+
+给你 旋转后 的数组 nums 和一个整数 target ，请你编写一个函数来判断给定的目标值是否存在于数组中。如果 nums 中存在这个目标值 target ，则返回 true ，否则返回 false 。
+
+
+
+
+
+#### 思路
+
+简单来说，基于该题型的一号题，我们可以想到使用二分来解答。但是我们会发现因为数据可能相等，所以我们需要删去数据中相等的部分。这样问题就变成了一号题，如何在这样的一个双递增序列中二分。我们可以先判断mid在左升序还是右升序，然后再根据其和target的关系来进行二分。或者我们可以考虑在什么样的情况下往左和往右即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    bool search(vector<int>& nums, int target) {
+        //两段升序数组
+        //中间最大
+        int size = nums.size();
+        int left = 0,right = size - 1;
+        while(left <= right){
+            //总是要进行重复元素的消除
+            while(left<right && nums[left] == nums[right]){
+                right --;
+                if(left == right){
+                    break;
+                }
+            }
+            int mid = left + (right-left)/2;//mid
+            if(nums[mid] == target) return true; //找到
+            //考虑向左还是向右
+            //此时数据满足左边升序 右边升序 且左边开头和右边结束不相等
+            if(nums[mid] >= nums[left]){
+                //中间的大于左边的 说明mid在左边升序上
+                if(nums[mid] > target && target>=nums[left]){
+                    //target在mid和left之间
+                    right = mid-1;
+                }
+                else{
+                    //mid<target 所以只能在右边
+                    left = mid +1;
+                }
+            }
+            else{
+                //中间的小于左边 说明处于右边的升序里
+                if(nums[mid]<target&&target<=nums[right]){
+                    //mid<target<target
+                    left = mid+1;
+                }
+                else{
+                    right = mid-1;
+                }
+            }
+        }
+        return false;
+    }
+};
+```
+
+
+
+
+
+### [221. 最大正方形](https://leetcode-cn.com/problems/maximal-square/)
+
+在一个由 `'0'` 和 `'1'` 组成的二维矩阵内，找到只包含 `'1'` 的最大正方形，并返回其面积。
+
+
+
+#### 思路
+
+一开始考虑前缀和，发现并不能够合理的通过两个节点的差来判断是否是正方形。
+
+接着考虑了下dp，对于`[i,j]`处来说，如果他是1，那么我们可以根据`[i-1,j]`、`[i,j-1]`、`[i-1,j-1]`的情况来判断他的最大。这样我们取出dp数组中的最大即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int maximalSquare(vector<vector<char>>& matrix) {
+        //都是1表示面积是可以算的 
+        //考虑前缀和
+        //然后取某个数从他的对角计算
+        int x = matrix.size();
+        if(x == 0) return 0;
+        int y = matrix[0].size();
+        vector<vector<int>> dp(x+1,vector<int>(y+1,0));
+        int Max = 0;
+        for(int i = 1;i <=x;++i){
+            for(int j = 1;j<=y;++j){
+                if(matrix[i-1][j-1] == '0'){
+                    dp[i][j] = 0;
+                }
+                else{
+                    //类似最大二叉树的思想
+                    //ij就相当于是缺的一个角 看前三个的最小 
+                    dp[i][j] = min(dp[i-1][j],min(dp[i][j-1],dp[i-1][j-1]))+1;
+                    Max = max(dp[i][j],Max);
+                }
+            }
+        }
+        return pow(Max,2);
+    }
+};
+```
+
