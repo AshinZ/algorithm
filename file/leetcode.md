@@ -7591,3 +7591,153 @@ public:
 };
 ```
 
+
+
+
+
+
+
+
+
+## 2021-4-9
+
+### [154. 寻找旋转排序数组中的最小值 II](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array-ii/)
+
+已知一个长度为 n 的数组，预先按照升序排列，经由 1 到 n 次 旋转 后，得到输入数组。例如，原数组 nums = [0,1,4,4,5,6,7] 在变化后可能得到：
+若旋转 4 次，则可以得到 [4,5,6,7,0,1,4]
+若旋转 7 次，则可以得到 [0,1,4,4,5,6,7]
+注意，数组 [a[0], a[1], a[2], ..., a[n-1]] 旋转一次 的结果为数组 [a[n-1], a[0], a[1], a[2], ..., a[n-2]] 。
+
+给你一个可能存在 重复 元素值的数组 nums ，它原来是一个升序排列的数组，并按上述情形进行了多次旋转。请你找出并返回数组中的 最小元素 。
+
+
+
+#### 思路
+
+考虑到两边的字符可能相等，会误导，所以我们要先消除掉一样的对其的影响，所以我们要先消除相同的。消除以后，我们执行二分即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    int findMin(vector<int>& nums) {
+        int size = nums.size();
+        int left = 0 ,right = size-1;
+        while(left<right){
+            while(left<right && nums[left] == nums[right]){
+                right --;
+            }
+            //两段升序
+            int mid = left + (right - left)/2;
+            if(nums[mid] <= nums[right]){
+                //中间小于右边
+                right = mid;
+            }
+            else{
+                left = mid+1;
+            }
+        }
+        return nums[left];
+    }
+};
+```
+
+
+
+
+
+## 2021-4-10
+
+### [263. 丑数](https://leetcode-cn.com/problems/ugly-number/)
+
+给你一个整数 n ，请你判断 n 是否为 丑数 。如果是，返回 true ；否则，返回 false 。
+
+丑数 就是只包含质因数 2、3 和/或 5 的正整数。
+
+
+
+#### 思路 
+
+不停的对n除2、3、5，如果到最后剩下1，那就说明是，否则就不是。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    bool isUgly(int n) {
+        int flag = 1;
+        while(n!=0 && flag != 0){
+            flag = 0;
+            if(n%2 == 0){
+                n = n /2;
+                flag = 1;
+            }
+            if(n%3 == 0){
+                n = n /3;
+                flag = 1;
+            }
+            if(n%5 == 0){
+                n = n /5;
+                flag = 1;
+            }
+        }
+        if(n == 1) return true;
+        return false;
+    }
+};
+```
+
+
+
+
+
+## 2021-4-12
+
+### [179. 最大数](https://leetcode-cn.com/problems/largest-number/)
+
+给定一组非负整数 `nums`，重新排列每个数的顺序（每个数不可拆分）使之组成一个最大的整数。
+
+**注意：**输出结果可能非常大，所以你需要返回一个字符串而不是整数。
+
+
+
+#### 思路
+
+显然我们要把大数开头的往前放，所以对于ab、ac、b，自然会考虑先看第一位，然后第一位相同在看第二位，诸如这样一直排序下去即可。
+
+
+
+#### 题解
+
+```c++
+class Solution {
+public:
+    string largestNumber(vector<int>& nums) {
+        sort(nums.begin(), nums.end(), [](const int &x, const int &y) {
+            long sx = 10, sy = 10;
+            while (sx <= x) {
+                sx *= 10;
+            }
+            while (sy <= y) {
+                sy *= 10;
+            }
+            return sy * x + y > sx * y + x;
+        });
+        if (nums[0] == 0) {
+            return "0";
+        }
+        string ret;
+        for (int &x : nums) {
+            ret += to_string(x);
+        }
+        return ret;
+    }
+};
+```
+
